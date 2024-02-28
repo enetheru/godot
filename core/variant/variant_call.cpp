@@ -1058,6 +1058,14 @@ struct _VariantCall {
 		signal->emit(p_args, p_argcount);
 	}
 
+	static PackedStringArray func_NodePath_get_subnames( NodePath *p_instance ) {
+		PackedStringArray subnames;
+		for( auto &name : p_instance->get_subnames() ) {
+			subnames.push_back( name );
+		}
+		return subnames;
+	}
+
 	struct ConstantData {
 		HashMap<StringName, int64_t> value;
 #ifdef DEBUG_ENABLED
@@ -2018,6 +2026,7 @@ static void _register_variant_builtin_methods() {
 	bind_method(NodePath, get_concatenated_subnames, sarray(), varray());
 	bind_method(NodePath, get_as_property_path, sarray(), varray());
 	bind_method(NodePath, is_empty, sarray(), varray());
+	bind_function(NodePath, get_subnames, _VariantCall::func_NodePath_get_subnames, sarray(), varray());
 
 	/* Callable */
 
