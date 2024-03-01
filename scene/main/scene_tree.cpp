@@ -1563,6 +1563,7 @@ bool SceneTree::is_multiplayer_poll_enabled() const {
 }
 
 void SceneTree::_bind_methods() {
+	ClassDB::bind_static_method( "SceneTree",D_METHOD("get_singleton"), &SceneTree::get_singleton );
 	ClassDB::bind_method(D_METHOD("get_root"), &SceneTree::get_root);
 	ClassDB::bind_method(D_METHOD("has_group", "name"), &SceneTree::has_group);
 
