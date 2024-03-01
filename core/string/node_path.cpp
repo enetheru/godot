@@ -355,6 +355,25 @@ NodePath::NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p
 	data->hash_cache_valid = false;
 }
 
+NodePath::NodePath(const Vector<String> &p_path, const Vector<String> &p_subpath, bool p_absolute) {
+	if (p_path.size() == 0 && p_subpath.size() == 0) {
+		return;
+	}
+
+	data = memnew(Data);
+	data->refcount.init();
+	data->absolute = p_absolute;
+	//FIXME Enetheru: this was hastily put here to solve a separate problem and
+	//has not been looked at too closely.
+	for( auto path : p_path ){
+		data->path.push_back( path );
+	}
+	for( auto subpath : p_subpath ){
+		data->subpath.push_back( subpath );
+	}
+	data->hash_cache_valid = false;
+}
+
 NodePath::NodePath(const NodePath &p_path) {
 	if (p_path.data && p_path.data->refcount.ref()) {
 		data = p_path.data;
