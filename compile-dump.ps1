@@ -6,3 +6,7 @@ scons compiledb=yes
 cp gdextension_interface.h ../godot-api-export/gdextension_interface.h
 [Console]::Out.Flush() 
 cp extension_api.json ../godot-api-export/extension_api.json
+
+cd ../godot-cpp
+scons generate_bindings=yes build_library=no
+cd ../godot
