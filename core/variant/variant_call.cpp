@@ -2013,6 +2013,7 @@ static void _register_variant_builtin_methods() {
 
 	bind_method(RID, is_valid, sarray(), varray());
 	bind_method(RID, get_id, sarray(), varray());
+	bind_static_method(RID, from_uint64, sarray("from"), varray());
 
 	/* NodePath */
 
