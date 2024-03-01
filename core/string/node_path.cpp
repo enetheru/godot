@@ -365,11 +365,11 @@ NodePath::NodePath(const Vector<String> &p_path, const Vector<String> &p_subpath
 	data->absolute = p_absolute;
 	//FIXME Enetheru: this was hastily put here to solve a separate problem and
 	//has not been looked at too closely.
-	for( auto path : p_path ){
-		data->path.push_back( path );
+	for (auto path : p_path) {
+		data->path.push_back(path);
 	}
-	for( auto subpath : p_subpath ){
-		data->subpath.push_back( subpath );
+	for (auto subpath : p_subpath) {
+		data->subpath.push_back(subpath);
 	}
 	data->hash_cache_valid = false;
 }
