@@ -120,6 +120,8 @@
 
 #include "modules/modules_enabled.gen.h" // For mono.
 
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+
 #if defined(MODULE_MONO_ENABLED) && defined(TOOLS_ENABLED)
 #include "modules/mono/editor/bindings_generator.h"
 #endif
@@ -3999,6 +4001,7 @@ static uint64_t navigation_process_max = 0;
 // will terminate the program. In case of failure, the OS exit code needs
 // to be set explicitly here (defaults to EXIT_SUCCESS).
 bool Main::iteration() {
+	ZoneScoped;
 	iterating++;
 
 	const uint64_t ticks = OS::get_singleton()->get_ticks_usec();
@@ -4038,13 +4041,18 @@ bool Main::iteration() {
 
 	// process all our active interfaces
 #ifndef _3D_DISABLED
-	XRServer::get_singleton()->_process();
+	{
+		ZoneScopedN("XRServer::_process();");
+		XRServer::get_singleton()->_process();
+	}
 #endif // _3D_DISABLED
 
 	NavigationServer2D::get_singleton()->sync();
 	NavigationServer3D::get_singleton()->sync();
 
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
+		FrameMarkStart("physics_step");
+
 		if (Input::get_singleton()->is_agile_input_event_flushing()) {
 			Input::get_singleton()->flush_buffered_events();
 		}
@@ -4055,8 +4063,14 @@ bool Main::iteration() {
 		uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
 #ifndef _3D_DISABLED
-		PhysicsServer3D::get_singleton()->sync();
-		PhysicsServer3D::get_singleton()->flush_queries();
+		{
+			ZoneScopedN("PhysicsServer3D::sync()");
+			PhysicsServer3D::get_singleton()->sync();
+		}
+		{
+			ZoneScopedN("PhysicsServer3D::flush_queries()");
+			PhysicsServer3D::get_singleton()->flush_queries();
+		}
 #endif // _3D_DISABLED
 
 		// Prepare the fixed timestep interpolated nodes BEFORE they are updated
@@ -4064,8 +4078,15 @@ bool Main::iteration() {
 		// may be the same, and no interpolation takes place.
 		OS::get_singleton()->get_main_loop()->iteration_prepare();
 
-		PhysicsServer2D::get_singleton()->sync();
-		PhysicsServer2D::get_singleton()->flush_queries();
+		{
+			ZoneScopedN("PhysicsServer3D::sync()");
+			PhysicsServer2D::get_singleton()->sync();
+		}
+		{
+			ZoneScopedN("PhysicsServer3D::flush_queries()");
+			PhysicsServer2D::get_singleton()->flush_queries();
+		}
+
 
 		if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
 #ifndef _3D_DISABLED
@@ -4077,10 +4098,12 @@ bool Main::iteration() {
 			break;
 		}
 
-		uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
 
-		NavigationServer3D::get_singleton()->process(physics_step * time_scale);
-
+		const uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
+		{
+			ZoneScopedN("NavigationServer3D::process()");
+			NavigationServer3D::get_singleton()->process(physics_step * time_scale);
+		}
 		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
 		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
 
@@ -4088,11 +4111,18 @@ bool Main::iteration() {
 
 #ifndef _3D_DISABLED
 		PhysicsServer3D::get_singleton()->end_sync();
-		PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
+		{
+			ZoneScopedN("PhysicsServer3D::step()");
+			PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
+		}
 #endif // _3D_DISABLED
 
+
 		PhysicsServer2D::get_singleton()->end_sync();
-		PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
+		{
+			ZoneScopedN("PhysicsServer2D::step()");
+			PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
+		}
 
 		message_queue->flush();
 
@@ -4100,6 +4130,7 @@ bool Main::iteration() {
 		physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
 
 		Engine::get_singleton()->_in_physics = false;
+		FrameMarkEnd("physics_step");
 	}
 
 	if (Input::get_singleton()->is_agile_input_event_flushing()) {
@@ -4107,9 +4138,11 @@ bool Main::iteration() {
 	}
 
 	uint64_t process_begin = OS::get_singleton()->get_ticks_usec();
-
-	if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
-		exit = true;
+	{
+		ZoneScopedN("MainLoop::process()");
+		if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
+			exit = true;
+		}
 	}
 	message_queue->flush();
 
@@ -4117,6 +4150,7 @@ bool Main::iteration() {
 
 	if ((DisplayServer::get_singleton()->can_any_window_draw() || DisplayServer::get_singleton()->has_additional_outputs()) &&
 			RenderingServer::get_singleton()->is_render_loop_enabled()) {
+		ZoneScopedN("RenderingServer::draw()");
 		if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
 			if (RenderingServer::get_singleton()->has_changed()) {
 				RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
@@ -4133,13 +4167,20 @@ bool Main::iteration() {
 	process_max = MAX(process_ticks, process_max);
 	uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
 
-	for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-		ScriptServer::get_language(i)->frame();
+	{
+		ZoneScopedN("ScriptServer::frame()");
+		for (int i = 0; i < ScriptServer::get_language_count(); i++) {
+			ScriptServer::get_language(i)->frame();
+		}
 	}
 
-	AudioServer::get_singleton()->update();
+	{
+		ZoneScopedN("AudioServer::Update()");
+		AudioServer::get_singleton()->update();
+	}
 
 	if (EngineDebugger::is_active()) {
+		ZoneScopedN("EngineDebugger::iteration()");
 		EngineDebugger::get_singleton()->iteration(frame_time, process_ticks, physics_process_ticks, physics_step);
 	}
 
@@ -4175,6 +4216,7 @@ bool Main::iteration() {
 	iterating--;
 
 	if (movie_writer) {
+		ZoneScopedN("MovieWriter::add_frame()");
 		movie_writer->add_frame();
 	}
 
@@ -4197,8 +4239,10 @@ bool Main::iteration() {
 	if (fixed_fps != -1) {
 		return exit;
 	}
-
-	OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
+	{
+		ZoneScopedN("OS::add_frame_delay()");
+		OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
+	}
 
 #ifdef TOOLS_ENABLED
 	if (auto_build_solutions) {

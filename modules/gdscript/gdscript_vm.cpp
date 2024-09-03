@@ -34,6 +34,10 @@
 
 #include "core/os/os.h"
 
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+#include <modules/godot_tracy/profiler.h>
+
+
 #ifdef DEBUG_ENABLED
 
 static bool _profile_count_as_native(const Object *p_base_obj, const StringName &p_methodname) {
@@ -445,7 +449,15 @@ void (*type_init_function_table[])(Variant *) = {
 #define METHOD_CALL_ON_NULL_VALUE_ERROR(method_pointer) "Cannot call method '" + (method_pointer)->get_name() + "' on a null value."
 #define METHOD_CALL_ON_FREED_INSTANCE_ERROR(method_pointer) "Cannot call method '" + (method_pointer)->get_name() + "' on a previously freed instance."
 
-Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_args, int p_argcount, Callable::CallError &r_err, CallState *p_state) {
+Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_args, int p_argcount, Callable::CallError &r_err, CallState *p_state){
+#if defined(DEBUG_ENABLED) && defined(TRACY_ENABLE)
+	auto zone = tracy::ScopedZone( &tracy_sld, true );
+	const auto zone_name = tracy::stringify_method( tracy_sld.name, p_args, p_argcount);
+	zone.Name( zone_name, zone_name.size() );
+#endif
+#if defined(__CLION_IDE__) || defined(__JETBRAINS_IDE__)
+}
+#else
 	OPCODES_TABLE;
 
 	if (!_code_ptr) {
@@ -3710,3 +3722,4 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 	return retvalue;
 }
+#endif

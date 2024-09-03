@@ -41,6 +41,8 @@
 #include "core/templates/self_list.h"
 #include "core/variant/variant.h"
 
+#include <modules/godot_tracy/tracy/public/client/TracyScoped.hpp>
+
 class GDScriptInstance;
 class GDScript;
 
@@ -507,6 +509,13 @@ private:
 		HashMap<String, NativeProfile> native_calls;
 		HashMap<String, NativeProfile> last_native_calls;
 	} profile;
+
+#ifdef TRACY_ENABLE
+	CharString tracy_name;
+	CharString tracy_function;
+	CharString tracy_file;
+	tracy::SourceLocationData tracy_sld;
+#endif
 #endif
 
 	_FORCE_INLINE_ String _get_call_error(const Callable::CallError &p_err, const String &p_where, const Variant **argptrs) const;

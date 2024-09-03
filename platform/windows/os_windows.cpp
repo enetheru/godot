@@ -60,6 +60,8 @@
 #include <wbemcli.h>
 #include <wincrypt.h>
 
+#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+
 #ifdef DEBUG_ENABLED
 #pragma pack(push, before_imagehlp, 8)
 #include <imagehlp.h>
@@ -1662,7 +1664,8 @@ void OS_Windows::run() {
 	main_loop->initialize();
 
 	while (true) {
-		DisplayServer::get_singleton()->process_events(); // get rid of pending events
+		FrameMark;
+		DisplayServer::get_singleton()->process_events(); // get rid of pending event
 		if (Main::iteration()) {
 			break;
 		}
