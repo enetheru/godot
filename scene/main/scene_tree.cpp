@@ -178,6 +178,7 @@ void SceneTree::make_group_changed(const StringName &p_group) {
 }
 
 void SceneTree::flush_transform_notifications() {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 
 	SelfList<Node> *n = xform_change_list.first();
@@ -191,6 +192,7 @@ void SceneTree::flush_transform_notifications() {
 }
 
 void SceneTree::_flush_ugc() {
+	ZoneScoped;
 	ugc_locked = true;
 
 	while (unique_group_calls.size()) {
@@ -507,6 +509,7 @@ bool SceneTree::physics_process(double p_time) {
 }
 
 bool SceneTree::process(double p_time) {
+	ZoneScoped;
 	if (MainLoop::process(p_time)) {
 		_quit = true;
 	}
@@ -549,6 +552,7 @@ bool SceneTree::process(double p_time) {
 #ifdef TOOLS_ENABLED
 #ifndef _3D_DISABLED
 	if (Engine::get_singleton()->is_editor_hint()) {
+		ZoneScopedN("Editor: reload_fallback_env check");
 		//simple hack to reload fallback environment if it changed from editor
 		String env_path = GLOBAL_GET(SNAME("rendering/environment/defaults/default_environment"));
 		env_path = env_path.strip_edges(); //user may have added a space or two
@@ -577,6 +581,7 @@ bool SceneTree::process(double p_time) {
 }
 
 void SceneTree::process_timers(double p_delta, bool p_physics_frame) {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 	List<Ref<SceneTreeTimer>>::Element *L = timers.back(); //last element
 
@@ -610,6 +615,7 @@ void SceneTree::process_timers(double p_delta, bool p_physics_frame) {
 }
 
 void SceneTree::process_tweens(double p_delta, bool p_physics) {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 	// This methods works similarly to how SceneTreeTimers are handled.
 	List<Ref<Tween>>::Element *L = tweens.back();
@@ -977,7 +983,7 @@ void SceneTree::_process_groups_thread(uint32_t p_index, bool p_physics) {
 }
 
 void SceneTree::_process(bool p_physics) {
-	ZoneScopedN("SceneTree::_process()");
+	ZoneScoped;
 
 	if (process_groups_dirty) {
 		{
@@ -1363,6 +1369,7 @@ void SceneTree::get_nodes_in_group(const StringName &p_group, List<Node *> *p_li
 }
 
 void SceneTree::_flush_delete_queue() {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 
 	while (delete_queue.size()) {
@@ -1410,6 +1417,7 @@ Node *SceneTree::get_current_scene() const {
 }
 
 void SceneTree::_flush_scene_change() {
+	ZoneScoped;
 	if (prev_scene) {
 		memdelete(prev_scene);
 		prev_scene = nullptr;
@@ -1696,6 +1704,7 @@ SceneTree::IdleCallback SceneTree::idle_callbacks[SceneTree::MAX_IDLE_CALLBACKS]
 int SceneTree::idle_callback_count = 0;
 
 void SceneTree::_call_idle_callbacks() {
+	ZoneScoped;
 	for (int i = 0; i < idle_callback_count; i++) {
 		idle_callbacks[i]();
 	}
