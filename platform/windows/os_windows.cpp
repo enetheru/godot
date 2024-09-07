@@ -60,7 +60,7 @@
 #include <wbemcli.h>
 #include <wincrypt.h>
 
-#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
 
 #ifdef DEBUG_ENABLED
 #pragma pack(push, before_imagehlp, 8)

@@ -34,7 +34,7 @@
 
 #include "core/debugger/engine_debugger.h"
 
-#include <modules/godot_tracy/profiler.h>
+#include <modules/tracy/profiler.h>
 
 uint32_t GDScriptByteCodeGenerator::add_parameter(const StringName &p_name, bool p_is_optional, const GDScriptDataType &p_type) {
 	function->_argument_count++;
@@ -433,10 +433,9 @@ void GDScriptByteCodeGenerator::set_signature(const String &p_signature) {
 
 void GDScriptByteCodeGenerator::set_initial_line(int p_line) {
 	function->_initial_line = p_line;
-#if defined(DEBUG_ENABLED) && defined(TRACY_ENABLE)
+#ifdef TRACY_ENABLE
 	function->tracy_sld.line = p_line;
 #endif
-
 }
 
 #define HAS_BUILTIN_TYPE(m_var) \

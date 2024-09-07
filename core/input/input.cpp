@@ -36,7 +36,7 @@
 #include "core/input/input_map.h"
 #include "core/os/os.h"
 
-#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
 
 #ifdef DEV_ENABLED
 #include "core/os/thread.h"
@@ -534,7 +534,7 @@ Vector3 Input::get_gyroscope() const {
 }
 
 void Input::_parse_input_event_impl(const Ref<InputEvent> &p_event, bool p_is_emulated) {
-#if defined(DEBUG_ENABLED) && defined(TRACY_ENABLE)
+#ifdef TRACY_ENABLE
 	const auto zone_name = p_event->as_text().utf8();
 	ZoneScoped;
 	ZoneName( zone_name, zone_name.size() );

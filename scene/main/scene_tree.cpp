@@ -66,7 +66,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <modules/godot_tracy/tracy/public/tracy/Tracy.hpp>
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
 
 void SceneTreeTimer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_time_left", "time"), &SceneTreeTimer::set_time_left);
@@ -477,7 +477,7 @@ void SceneTree::iteration_prepare() {
 }
 
 bool SceneTree::physics_process(double p_time) {
-	ZoneScopedN("SceneTree::physics_process()");
+	ZoneScoped;
 	current_frame++;
 
 	flush_transform_notifications();
@@ -494,7 +494,10 @@ bool SceneTree::physics_process(double p_time) {
 	_process(true);
 
 	_flush_ugc();
-	MessageQueue::get_singleton()->flush(); //small little hack
+	{
+		ZoneNamedN( tz__NAME__, "MessageQueue::flush()", true );
+		MessageQueue::get_singleton()->flush(); //small little hack
+	}
 
 	process_timers(p_time, true); //go through timers
 
@@ -552,7 +555,7 @@ bool SceneTree::process(double p_time) {
 #ifdef TOOLS_ENABLED
 #ifndef _3D_DISABLED
 	if (Engine::get_singleton()->is_editor_hint()) {
-		ZoneScopedN("Editor: reload_fallback_env check");
+		ZoneNamedN( tz__NAME__, "Editor: reload_fallback_env check", true );
 		//simple hack to reload fallback environment if it changed from editor
 		String env_path = GLOBAL_GET(SNAME("rendering/environment/defaults/default_environment"));
 		env_path = env_path.strip_edges(); //user may have added a space or two
