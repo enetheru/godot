@@ -31,6 +31,8 @@
 #ifndef GDSCRIPT_FUNCTION_H
 #define GDSCRIPT_FUNCTION_H
 
+#include <modules/tracy/tracy/public/client/TracyProfiler.hpp>
+
 #include "gdscript_utility_functions.h"
 
 #include "core/object/ref_counted.h"
@@ -40,8 +42,6 @@
 #include "core/templates/pair.h"
 #include "core/templates/self_list.h"
 #include "core/variant/variant.h"
-
-#include <modules/tracy/tracy/public/client/TracyScoped.hpp>
 
 class GDScriptInstance;
 class GDScript;
