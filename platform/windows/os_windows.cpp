@@ -184,6 +184,7 @@ static void _error_handler(void *p_self, const char *p_func, const char *p_file,
 #endif
 
 void OS_Windows::initialize() {
+	ZoneScoped;
 	crash_handler.initialize();
 
 #ifdef WINDOWS_DEBUG_OUTPUT_ENABLED
@@ -375,6 +376,7 @@ void debug_dynamic_library_check_dependencies(const String &p_root_path, const S
 #endif
 
 Error OS_Windows::open_dynamic_library(const String &p_path, void *&p_library_handle, GDExtensionData *p_data) {
+	ZoneScoped;
 	String path = p_path.replace("/", "\\");
 
 	if (!FileAccess::exists(path)) {
@@ -1661,11 +1663,17 @@ void OS_Windows::run() {
 		return;
 	}
 
-	main_loop->initialize();
+	{
+		ZoneNamedN( tz__LINE__, "MainLoop::initialize()", true);
+		main_loop->initialize();
+	}
 
 	while (true) {
 		FrameMark;
-		DisplayServer::get_singleton()->process_events(); // get rid of pending event
+		{
+			ZoneNamedN( tz__LINE__, "DisplayServer::process_events()", true);
+			DisplayServer::get_singleton()->process_events(); // get rid of pending event
+		}
 		if (Main::iteration()) {
 			break;
 		}

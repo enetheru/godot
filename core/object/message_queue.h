@@ -31,6 +31,8 @@
 #ifndef MESSAGE_QUEUE_H
 #define MESSAGE_QUEUE_H
 
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
+
 #include "core/object/object_id.h"
 #include "core/os/thread_safe.h"
 #include "core/templates/local_vector.h"
@@ -66,7 +68,8 @@ private:
 		FLAG_MASK = FLAG_NULL_IS_OK - 1,
 	};
 
-	Mutex mutex;
+	TracyLockable ( Mutex, mutex ) ;
+	// Mutex mutex;
 
 	Allocator *allocator = nullptr;
 	bool allocator_is_custom = false;

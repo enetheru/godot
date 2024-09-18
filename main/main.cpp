@@ -313,6 +313,7 @@ static Vector<String> get_files_with_extension(const String &p_root, const Strin
 
 // FIXME: Could maybe be moved to have less code in main.cpp.
 void initialize_physics() {
+	ZoneScoped;
 #ifndef _3D_DISABLED
 	/// 3D Physics Server
 	physics_server_3d = PhysicsServer3DManager::get_singleton()->new_server(
@@ -337,6 +338,7 @@ void initialize_physics() {
 }
 
 void finalize_physics() {
+	ZoneScoped;
 #ifndef _3D_DISABLED
 	physics_server_3d->finish();
 	memdelete(physics_server_3d);
@@ -347,6 +349,7 @@ void finalize_physics() {
 }
 
 void finalize_display() {
+	ZoneScoped;
 	rendering_server->finish();
 	memdelete(rendering_server);
 
@@ -354,6 +357,7 @@ void finalize_display() {
 }
 
 void initialize_navigation_server() {
+	ZoneScoped;
 	ERR_FAIL_COND(navigation_server_3d != nullptr);
 	ERR_FAIL_COND(navigation_server_2d != nullptr);
 
@@ -380,6 +384,7 @@ void initialize_navigation_server() {
 }
 
 void finalize_navigation_server() {
+	ZoneScoped;
 	ERR_FAIL_NULL(navigation_server_3d);
 	navigation_server_3d->finish();
 	memdelete(navigation_server_3d);
@@ -392,10 +397,12 @@ void finalize_navigation_server() {
 }
 
 void initialize_theme_db() {
+	ZoneScoped;
 	theme_db = memnew(ThemeDB);
 }
 
 void finalize_theme_db() {
+	ZoneScoped;
 	memdelete(theme_db);
 	theme_db = nullptr;
 }
@@ -906,6 +913,7 @@ int Main::test_entrypoint(int argc, char *argv[], bool &tests_need_run) {
  */
 
 Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_phase) {
+	ZoneScoped;
 	Thread::make_main_thread();
 	set_current_thread_safe_for_nodes(true);
 
@@ -2556,6 +2564,7 @@ Error _parse_resource_dummy(void *p_data, VariantParser::Stream *p_stream, Ref<R
 }
 
 Error Main::setup2(bool p_show_boot_logo) {
+	ZoneScoped;
 	OS::get_singleton()->benchmark_begin_measure("Startup", "Main::Setup2");
 
 	Thread::make_main_thread(); // Make whatever thread call this the main thread.
@@ -3240,6 +3249,7 @@ static MainTimerSync main_timer_sync;
 // and should move on to `OS::run`, and EXIT_FAILURE otherwise for
 // an early exit with that error code.
 int Main::start() {
+	ZoneScoped;
 	OS::get_singleton()->benchmark_begin_measure("Startup", "Main::Start");
 
 	ERR_FAIL_COND_V(!_start_success, false);
@@ -4281,6 +4291,7 @@ void Main::force_redraw() {
  * The order matters as some of those steps are linked with each other.
  */
 void Main::cleanup(bool p_force) {
+	ZoneScoped;
 	OS::get_singleton()->benchmark_begin_measure("Shutdown", "Main::Cleanup");
 	if (!p_force) {
 		ERR_FAIL_COND(!_start_success);

@@ -226,8 +226,8 @@ void CallQueue::_call_function(const Callable &p_callable, const Variant *p_args
 }
 
 Error CallQueue::flush() {
-	LOCK_MUTEX;
 	ZoneScoped;
+	LOCK_MUTEX;
 
 	if (pages.size() == 0) {
 		// Never allocated
