@@ -1242,6 +1242,8 @@ void Mutex::_bind_methods() {
 ////// Thread //////
 
 void Thread::_start_func(void *ud) {
+	tracy::SetThreadName("core_bind::Thread::_start_func()");
+	ZoneScoped;
 	Ref<Thread> *tud = (Ref<Thread> *)ud;
 	Ref<Thread> t = *tud;
 	memdelete(tud);

@@ -36,6 +36,8 @@
 #include "core/input/input_map.h"
 #include "core/os/os.h"
 
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
+
 #ifdef DEV_ENABLED
 #include "core/os/thread.h"
 #endif
@@ -532,6 +534,11 @@ Vector3 Input::get_gyroscope() const {
 }
 
 void Input::_parse_input_event_impl(const Ref<InputEvent> &p_event, bool p_is_emulated) {
+#ifdef TRACY_ENABLE
+	const auto zone_name = p_event->as_text().utf8();
+	ZoneScoped;
+	ZoneName( zone_name, zone_name.size() );
+#endif
 	// This function does the final delivery of the input event to user land.
 	// Regardless where the event came from originally, this has to happen on the main thread.
 	DEV_ASSERT(Thread::get_caller_id() == Thread::get_main_id());

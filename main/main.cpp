@@ -120,6 +120,8 @@
 
 #include "modules/modules_enabled.gen.h" // For mono.
 
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
+
 #if defined(MODULE_MONO_ENABLED) && defined(TOOLS_ENABLED)
 #include "modules/mono/editor/bindings_generator.h"
 #endif
@@ -311,6 +313,7 @@ static Vector<String> get_files_with_extension(const String &p_root, const Strin
 
 // FIXME: Could maybe be moved to have less code in main.cpp.
 void initialize_physics() {
+	ZoneScoped;
 #ifndef _3D_DISABLED
 	/// 3D Physics Server
 	physics_server_3d = PhysicsServer3DManager::get_singleton()->new_server(
@@ -335,6 +338,7 @@ void initialize_physics() {
 }
 
 void finalize_physics() {
+	ZoneScoped;
 #ifndef _3D_DISABLED
 	physics_server_3d->finish();
 	memdelete(physics_server_3d);
@@ -345,6 +349,7 @@ void finalize_physics() {
 }
 
 void finalize_display() {
+	ZoneScoped;
 	rendering_server->finish();
 	memdelete(rendering_server);
 
@@ -352,6 +357,7 @@ void finalize_display() {
 }
 
 void initialize_navigation_server() {
+	ZoneScoped;
 	ERR_FAIL_COND(navigation_server_3d != nullptr);
 	ERR_FAIL_COND(navigation_server_2d != nullptr);
 
@@ -378,6 +384,7 @@ void initialize_navigation_server() {
 }
 
 void finalize_navigation_server() {
+	ZoneScoped;
 	ERR_FAIL_NULL(navigation_server_3d);
 	navigation_server_3d->finish();
 	memdelete(navigation_server_3d);
@@ -390,10 +397,12 @@ void finalize_navigation_server() {
 }
 
 void initialize_theme_db() {
+	ZoneScoped;
 	theme_db = memnew(ThemeDB);
 }
 
 void finalize_theme_db() {
+	ZoneScoped;
 	memdelete(theme_db);
 	theme_db = nullptr;
 }
@@ -904,6 +913,7 @@ int Main::test_entrypoint(int argc, char *argv[], bool &tests_need_run) {
  */
 
 Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_phase) {
+	ZoneScoped;
 	Thread::make_main_thread();
 	set_current_thread_safe_for_nodes(true);
 
@@ -2560,6 +2570,7 @@ Error _parse_resource_dummy(void *p_data, VariantParser::Stream *p_stream, Ref<R
 }
 
 Error Main::setup2(bool p_show_boot_logo) {
+	ZoneScoped;
 	OS::get_singleton()->benchmark_begin_measure("Startup", "Main::Setup2");
 
 	Thread::make_main_thread(); // Make whatever thread call this the main thread.
@@ -3276,6 +3287,7 @@ static MainTimerSync main_timer_sync;
 // and should move on to `OS::run`, and EXIT_FAILURE otherwise for
 // an early exit with that error code.
 int Main::start() {
+	ZoneScoped;
 	OS::get_singleton()->benchmark_begin_measure("Startup", "Main::Start");
 
 	ERR_FAIL_COND_V(!_start_success, false);
@@ -4042,6 +4054,7 @@ static uint64_t navigation_process_max = 0;
 // will terminate the program. In case of failure, the OS exit code needs
 // to be set explicitly here (defaults to EXIT_SUCCESS).
 bool Main::iteration() {
+	ZoneScoped;
 	iterating++;
 
 	const uint64_t ticks = OS::get_singleton()->get_ticks_usec();
@@ -4081,13 +4094,18 @@ bool Main::iteration() {
 
 	// process all our active interfaces
 #ifndef _3D_DISABLED
-	XRServer::get_singleton()->_process();
+	{
+		ZoneNamedN( tz__LINE__, "XRServer::_process()", true);
+		XRServer::get_singleton()->_process();
+	}
 #endif // _3D_DISABLED
 
 	NavigationServer2D::get_singleton()->sync();
 	NavigationServer3D::get_singleton()->sync();
 
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
+		FrameMarkStart("physics_step");
+
 		if (Input::get_singleton()->is_agile_input_event_flushing()) {
 			Input::get_singleton()->flush_buffered_events();
 		}
@@ -4098,8 +4116,14 @@ bool Main::iteration() {
 		uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
 #ifndef _3D_DISABLED
-		PhysicsServer3D::get_singleton()->sync();
-		PhysicsServer3D::get_singleton()->flush_queries();
+		{
+			ZoneNamedN( tz__LINE__, "PhysicsServer3D::sync()", true);
+			PhysicsServer3D::get_singleton()->sync();
+		}
+		{
+			ZoneNamedN( tz__LINE__, "PhysicsServer3D::flush_queries()", true);
+			PhysicsServer3D::get_singleton()->flush_queries();
+		}
 #endif // _3D_DISABLED
 
 		// Prepare the fixed timestep interpolated nodes BEFORE they are updated
@@ -4107,8 +4131,15 @@ bool Main::iteration() {
 		// may be the same, and no interpolation takes place.
 		OS::get_singleton()->get_main_loop()->iteration_prepare();
 
-		PhysicsServer2D::get_singleton()->sync();
-		PhysicsServer2D::get_singleton()->flush_queries();
+		{
+			ZoneNamedN( tz__LINE__, "PhysicsServer3D::sync()", true);
+			PhysicsServer2D::get_singleton()->sync();
+		}
+		{
+			ZoneNamedN( tz__line_, "PhysicsServer3D::flush_queries()", true);
+			PhysicsServer2D::get_singleton()->flush_queries();
+		}
+
 
 		if (OS::get_singleton()->get_main_loop()->physics_process(physics_step * time_scale)) {
 #ifndef _3D_DISABLED
@@ -4120,10 +4151,12 @@ bool Main::iteration() {
 			break;
 		}
 
-		uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
 
-		NavigationServer3D::get_singleton()->process(physics_step * time_scale);
-
+		const uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
+		{
+			ZoneNamedN(tz__line__, "NavigationServer3D::process()", true);
+			NavigationServer3D::get_singleton()->process(physics_step * time_scale);
+		}
 		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
 		navigation_process_max = MAX(OS::get_singleton()->get_ticks_usec() - navigation_begin, navigation_process_max);
 
@@ -4131,11 +4164,18 @@ bool Main::iteration() {
 
 #ifndef _3D_DISABLED
 		PhysicsServer3D::get_singleton()->end_sync();
-		PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
+		{
+			ZoneNamedN( tz__line__, "PhysicsServer3D::step()", true);
+			PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
+		}
 #endif // _3D_DISABLED
 
+
 		PhysicsServer2D::get_singleton()->end_sync();
-		PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
+		{
+			ZoneNamedN( tz__line__, "PhysicsServer2D::step()", true);
+			PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
+		}
 
 		message_queue->flush();
 
@@ -4143,6 +4183,7 @@ bool Main::iteration() {
 		physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
 
 		Engine::get_singleton()->_in_physics = false;
+		FrameMarkEnd("physics_step");
 	}
 
 	if (Input::get_singleton()->is_agile_input_event_flushing()) {
@@ -4150,9 +4191,11 @@ bool Main::iteration() {
 	}
 
 	uint64_t process_begin = OS::get_singleton()->get_ticks_usec();
-
-	if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
-		exit = true;
+	{
+		ZoneNamedN( tz__line__, "MainLoop::process()", true);
+		if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
+			exit = true;
+		}
 	}
 	message_queue->flush();
 
@@ -4160,6 +4203,7 @@ bool Main::iteration() {
 
 	if ((DisplayServer::get_singleton()->can_any_window_draw() || DisplayServer::get_singleton()->has_additional_outputs()) &&
 			RenderingServer::get_singleton()->is_render_loop_enabled()) {
+		ZoneNamedN( tz__line__, "RenderingServer::draw()", true);
 		if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
 			if (RenderingServer::get_singleton()->has_changed()) {
 				RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
@@ -4176,13 +4220,20 @@ bool Main::iteration() {
 	process_max = MAX(process_ticks, process_max);
 	uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
 
-	for (int i = 0; i < ScriptServer::get_language_count(); i++) {
-		ScriptServer::get_language(i)->frame();
+	{
+		ZoneNamedN( tz__line__, "ScriptServer::frame()", true);
+		for (int i = 0; i < ScriptServer::get_language_count(); i++) {
+			ScriptServer::get_language(i)->frame();
+		}
 	}
 
-	AudioServer::get_singleton()->update();
+	{
+		ZoneNamedN( tz__line__, "AudioServer::Update()", true);
+		AudioServer::get_singleton()->update();
+	}
 
 	if (EngineDebugger::is_active()) {
+		ZoneNamedN( tz__line__, "EngineDebugger::iteration()", true);
 		EngineDebugger::get_singleton()->iteration(frame_time, process_ticks, physics_process_ticks, physics_step);
 	}
 
@@ -4218,6 +4269,7 @@ bool Main::iteration() {
 	iterating--;
 
 	if (movie_writer) {
+		ZoneNamedN( tz__line__, "MovieWriter::add_frame()", true);
 		movie_writer->add_frame();
 	}
 
@@ -4240,8 +4292,10 @@ bool Main::iteration() {
 	if (fixed_fps != -1) {
 		return exit;
 	}
-
-	OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
+	{
+		ZoneNamedN( tz__line__, "OS::add_frame_delay()", true);
+		OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
+	}
 
 #ifdef TOOLS_ENABLED
 	if (auto_build_solutions) {
@@ -4280,6 +4334,7 @@ void Main::force_redraw() {
  * The order matters as some of those steps are linked with each other.
  */
 void Main::cleanup(bool p_force) {
+	ZoneScoped;
 	OS::get_singleton()->benchmark_begin_measure("Shutdown", "Main::Cleanup");
 	if (!p_force) {
 		ERR_FAIL_COND(!_start_success);

@@ -183,6 +183,8 @@ void WorkerThreadPool::_process_task(Task *p_task) {
 }
 
 void WorkerThreadPool::_thread_function(void *p_user) {
+	tracy::SetThreadName("ThreadPoolWorker");
+	ZoneScoped;
 	ThreadData *thread_data = (ThreadData *)p_user;
 	while (true) {
 		Task *task_to_process = nullptr;
@@ -697,6 +699,7 @@ void WorkerThreadPool::thread_exit_unlock_allowance_zone(uint32_t p_zone_id) {
 #endif
 
 void WorkerThreadPool::init(int p_thread_count, float p_low_priority_task_ratio) {
+	ZoneScoped;
 	ERR_FAIL_COND(threads.size() > 0);
 	if (p_thread_count < 0) {
 		p_thread_count = OS::get_singleton()->get_default_thread_pool_size();

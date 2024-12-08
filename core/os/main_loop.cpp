@@ -69,6 +69,7 @@ bool MainLoop::process(double p_time) {
 }
 
 void MainLoop::finalize() {
+	ZoneScoped;
 	GDVIRTUAL_CALL(_finalize);
 
 	if (get_script_instance()) {

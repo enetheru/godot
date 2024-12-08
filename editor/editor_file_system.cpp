@@ -272,6 +272,7 @@ void EditorFileSystem::_first_scan_process_scripts(const ScannedDirectory *p_sca
 }
 
 void EditorFileSystem::_scan_filesystem() {
+	ZoneScoped;
 	// On the first scan, the first_scan_root_dir is created in _first_scan_filesystem.
 	ERR_FAIL_COND(!scanning || new_filesystem || (first_scan && !first_scan_root_dir));
 
@@ -424,6 +425,7 @@ void EditorFileSystem::_save_filesystem_cache() {
 }
 
 void EditorFileSystem::_thread_func(void *_userdata) {
+	tracy::SetThreadName("EditorFilesystem");
 	EditorFileSystem *sd = (EditorFileSystem *)_userdata;
 	sd->_scan_filesystem();
 }

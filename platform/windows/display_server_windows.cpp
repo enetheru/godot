@@ -59,6 +59,8 @@
 #include <shobjidl.h>
 #include <wbemcli.h>
 
+#include <modules/tracy/tracy/public/tracy/Tracy.hpp>
+
 #ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
@@ -3145,6 +3147,7 @@ String DisplayServerWindows::keyboard_get_layout_name(int p_index) const {
 }
 
 void DisplayServerWindows::process_events() {
+	ZoneScoped;
 	ERR_FAIL_COND(!Thread::is_main_thread());
 
 	if (!drop_events) {
