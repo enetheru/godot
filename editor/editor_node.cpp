@@ -170,6 +170,8 @@
 
 #include <stdlib.h>
 
+#include <thirdparty/tracy/tracy/Tracy.hpp>
+
 EditorNode *EditorNode::singleton = nullptr;
 
 static const String EDITOR_NODE_CONFIG_SECTION = "EditorNode";
@@ -6819,6 +6821,7 @@ void EditorNode::_print_handler_impl(const String &p_string, bool p_error, bool 
 }
 
 static void _execute_thread(void *p_ud) {
+	ZoneScoped;
 	EditorNode::ExecuteThreadArgs *eta = (EditorNode::ExecuteThreadArgs *)p_ud;
 	Error err = OS::get_singleton()->execute(eta->path, eta->args, &eta->output, &eta->exitcode, true, &eta->execute_output_mutex);
 	print_verbose("Thread exit status: " + itos(eta->exitcode));

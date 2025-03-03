@@ -35,6 +35,8 @@
 #include "core/os/safe_binary_mutex.h"
 #include "core/os/thread_safe.h"
 
+#include <thirdparty/tracy/tracy/Tracy.hpp>
+
 WorkerThreadPool::Task *const WorkerThreadPool::ThreadData::YIELDING = (Task *)1;
 
 HashMap<StringName, WorkerThreadPool *> WorkerThreadPool::named_pools;
@@ -181,6 +183,7 @@ void WorkerThreadPool::_process_task(Task *p_task) {
 }
 
 void WorkerThreadPool::_thread_function(void *p_user) {
+	ZoneScoped;
 	ThreadData *thread_data = (ThreadData *)p_user;
 
 	while (true) {
@@ -758,6 +761,7 @@ void WorkerThreadPool::thread_exit_unlock_allowance_zone(uint32_t p_zone_id) {
 #endif
 
 void WorkerThreadPool::init(int p_thread_count, float p_low_priority_task_ratio) {
+	ZoneScoped;
 	ERR_FAIL_COND(threads.size() > 0);
 
 	runlevel = RUNLEVEL_NORMAL;

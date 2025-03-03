@@ -36,6 +36,8 @@
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_warnings.h"
 
+#include <thirdparty/tracy/tracy/Tracy.hpp>
+
 RenderingServer *RenderingServer::singleton = nullptr;
 RenderingServer *(*RenderingServer::create_func)() = nullptr;
 
@@ -3583,6 +3585,7 @@ TypedArray<StringName> RenderingServer::_global_shader_parameter_get_list() cons
 }
 
 void RenderingServer::init() {
+	ZoneScoped;
 	// These are overrides, even if they are false Godot will still
 	// import the texture formats that the host platform needs.
 	// See `const bool can_s3tc_bptc` in the resource importer.

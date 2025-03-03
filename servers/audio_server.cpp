@@ -44,6 +44,7 @@
 #include "servers/audio/effects/audio_effect_compressor.h"
 
 #include <cstring>
+#include <thirdparty/tracy/tracy/Tracy.hpp>
 
 #ifdef TOOLS_ENABLED
 #define MARK_EDITED set_edited(true);
@@ -213,6 +214,7 @@ int AudioDriverManager::get_driver_count() {
 }
 
 void AudioDriverManager::initialize(int p_driver) {
+	ZoneScoped;
 	GLOBAL_DEF_RST("audio/driver/enable_input", false);
 	GLOBAL_DEF_RST(PropertyInfo(Variant::INT, "audio/driver/mix_rate", PROPERTY_HINT_RANGE, "11025,192000,1,or_greater,suffix:Hz"), DEFAULT_MIX_RATE);
 	GLOBAL_DEF_RST(PropertyInfo(Variant::INT, "audio/driver/mix_rate.web", PROPERTY_HINT_RANGE, "0,192000,1,or_greater,suffix:Hz"), 0); // Safer default output_latency for web (use browser default).
