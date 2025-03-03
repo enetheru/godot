@@ -57,6 +57,8 @@
 #endif // _3D_DISABLED
 #include "window.h"
 
+#include <thirdparty/tracy/tracy/Tracy.hpp>
+
 void SceneTreeTimer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_time_left", "time"), &SceneTreeTimer::set_time_left);
 	ClassDB::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
@@ -190,6 +192,7 @@ void SceneTree::make_group_changed(const StringName &p_group) {
 }
 
 void SceneTree::flush_transform_notifications() {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 
 	SelfList<Node> *n = xform_change_list.first();
@@ -203,6 +206,7 @@ void SceneTree::flush_transform_notifications() {
 }
 
 void SceneTree::_flush_ugc() {
+	ZoneScoped;
 	ugc_locked = true;
 
 	while (unique_group_calls.size()) {
@@ -465,6 +469,7 @@ void SceneTree::set_group(const StringName &p_group, const String &p_name, const
 }
 
 void SceneTree::initialize() {
+	ZoneScoped;
 	ERR_FAIL_NULL(root);
 	MainLoop::initialize();
 	root->_set_tree(this);
@@ -515,6 +520,7 @@ void SceneTree::iteration_prepare() {
 }
 
 bool SceneTree::physics_process(double p_time) {
+	ZoneScoped;
 	current_frame++;
 
 	flush_transform_notifications();
@@ -531,7 +537,10 @@ bool SceneTree::physics_process(double p_time) {
 	_process(true);
 
 	_flush_ugc();
-	MessageQueue::get_singleton()->flush(); //small little hack
+	{
+		ZoneNamedN( tz__NAME__, "MessageQueue::flush()", true );
+		MessageQueue::get_singleton()->flush(); //small little hack
+	}
 
 	process_timers(p_time, true); //go through timers
 	process_tweens(p_time, true);
@@ -561,6 +570,7 @@ void SceneTree::iteration_end() {
 }
 
 bool SceneTree::process(double p_time) {
+	ZoneScoped;
 	if (MainLoop::process(p_time)) {
 		_quit = true;
 	}
@@ -603,6 +613,7 @@ bool SceneTree::process(double p_time) {
 #ifdef TOOLS_ENABLED
 #ifndef _3D_DISABLED
 	if (Engine::get_singleton()->is_editor_hint()) {
+		ZoneNamedN( tz__NAME__, "Editor: reload_fallback_env check", true );
 		String env_path = GLOBAL_GET(SNAME("rendering/environment/defaults/default_environment"));
 		env_path = env_path.strip_edges(); // User may have added a space or two.
 
@@ -648,6 +659,7 @@ bool SceneTree::process(double p_time) {
 }
 
 void SceneTree::process_timers(double p_delta, bool p_physics_frame) {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 	const List<Ref<SceneTreeTimer>>::Element *L = timers.back(); // Last element.
 	const double unscaled_delta = Engine::get_singleton()->get_process_step();
@@ -680,6 +692,7 @@ void SceneTree::process_timers(double p_delta, bool p_physics_frame) {
 }
 
 void SceneTree::process_tweens(double p_delta, bool p_physics) {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 	// This methods works similarly to how SceneTreeTimers are handled.
 	const List<Ref<Tween>>::Element *L = tweens.back();
@@ -1077,6 +1090,8 @@ void SceneTree::_process_groups_thread(uint32_t p_index, bool p_physics) {
 }
 
 void SceneTree::_process(bool p_physics) {
+	ZoneScoped;
+
 	if (process_groups_dirty) {
 		{
 			// First, remove dirty groups.
@@ -1461,6 +1476,7 @@ void SceneTree::get_nodes_in_group(const StringName &p_group, List<Node *> *p_li
 }
 
 void SceneTree::_flush_delete_queue() {
+	ZoneScoped;
 	_THREAD_SAFE_METHOD_
 
 	while (delete_queue.size()) {
@@ -1508,6 +1524,7 @@ Node *SceneTree::get_current_scene() const {
 }
 
 void SceneTree::_flush_scene_change() {
+	ZoneScoped;
 	if (prev_scene) {
 		memdelete(prev_scene);
 		prev_scene = nullptr;
@@ -1805,6 +1822,7 @@ SceneTree::IdleCallback SceneTree::idle_callbacks[SceneTree::MAX_IDLE_CALLBACKS]
 int SceneTree::idle_callback_count = 0;
 
 void SceneTree::_call_idle_callbacks() {
+	ZoneScoped;
 	for (int i = 0; i < idle_callback_count; i++) {
 		idle_callbacks[i]();
 	}

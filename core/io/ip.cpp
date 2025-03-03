@@ -35,6 +35,8 @@
 #include "core/templates/hash_map.h"
 #include "core/variant/typed_array.h"
 
+#include <thirdparty/tracy/tracy/Tracy.hpp>
+
 /************* RESOLVER ******************/
 
 struct _IP_ResolverPrivate {
@@ -76,6 +78,7 @@ struct _IP_ResolverPrivate {
 	SafeFlag thread_abort;
 
 	void resolve_queues() {
+		ZoneScoped;
 		for (int i = 0; i < IP::RESOLVER_MAX_QUERIES; i++) {
 			if (queue[i].status.get() != IP::RESOLVER_STATUS_WAITING) {
 				continue;
