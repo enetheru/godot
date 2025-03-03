@@ -6,13 +6,14 @@ Import("env_modules")
 
 env_tracy = env_modules.Clone()
 
+env.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_DELAYED_INIT"])
+env_tracy.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_DELAYED_INIT"])
+
 # Thirdparty source files
 thirdparty_obj = []
 
 thirdparty_dir =  "#thirdparty/tracy/"
-thirdparty_sources = [
-    "TracyClient.cpp",
-]
+thirdparty_sources = ["TracyClient.cpp"]
 thirdparty_sources = [thirdparty_dir + file for file in thirdparty_sources]
 
 env_tracy.Prepend(CPPPATH=[thirdparty_dir])
