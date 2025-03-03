@@ -31,6 +31,8 @@
 #ifndef GDSCRIPT_FUNCTION_H
 #define GDSCRIPT_FUNCTION_H
 
+#include <thirdparty/tracy/client/TracyProfiler.hpp>
+
 #include "gdscript_utility_functions.h"
 
 #include "core/object/ref_counted.h"
@@ -550,6 +552,12 @@ private:
 		HashMap<String, NativeProfile> native_calls;
 		HashMap<String, NativeProfile> last_native_calls;
 	} profile;
+#endif
+#ifdef TRACY_ENABLE
+	CharString tracy_name;
+	CharString tracy_function;
+	CharString tracy_file;
+	tracy::SourceLocationData tracy_sld;
 #endif
 
 	_FORCE_INLINE_ String _get_call_error(const String &p_where, const Variant **p_argptrs, const Variant &p_ret, const Callable::CallError &p_err) const;
