@@ -35,6 +35,8 @@
 #include <locale.h>
 #include <stdio.h>
 
+#include <thirdparty/tracy/tracy/Tracy.hpp>
+
 // For export templates, add a section; the exporter will patch it to enclose
 // the data appended to the executable (bundled PCK).
 #ifndef TOOLS_ENABLED
@@ -126,6 +128,8 @@ int _main() {
 }
 
 int main(int argc, char **argv) {
+	tracy::SetThreadName("Main");
+
 	// override the arguments for the test handler / if symbol is provided
 	// TEST_MAIN_OVERRIDE
 

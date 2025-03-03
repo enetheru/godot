@@ -549,6 +549,7 @@ void EditorFileSystem::_save_filesystem_cache() {
 }
 
 void EditorFileSystem::_thread_func(void *_userdata) {
+	tracy::SetThreadName("EditorFilesystem");
 	EditorFileSystem *sd = (EditorFileSystem *)_userdata;
 	sd->_scan_filesystem();
 }
