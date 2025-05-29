@@ -30,6 +30,8 @@
 
 #include "audio_stream_preview.h"
 
+#include "thirdparty/tracy/tracy/Tracy.hpp"
+
 /////////////////////
 
 float AudioStreamPreview::get_length() const {
@@ -109,6 +111,8 @@ void AudioStreamPreviewGenerator::_update_emit(ObjectID p_id) {
 }
 
 void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
+	tracy::SetThreadName("AudioStreamPreviewGenerator");
+	ZoneScoped;
 	Preview *preview = static_cast<Preview *>(p_preview);
 
 	float muxbuff_chunk_s = 0.25;

@@ -48,6 +48,7 @@
 #include "scene/gui/texture_button.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/resources/image_texture.h"
+#include "thirdparty/tracy/tracy/Tracy.hpp"
 
 void ProjectListItemControl::_notification(int p_what) {
 	switch (p_what) {
@@ -381,7 +382,10 @@ void ProjectList::_notification(int p_what) {
 
 // Projects scan.
 
+
 void ProjectList::_scan_thread(void *p_scan_data) {
+	tracy::SetThreadName("ProjectList::_scan_thread");
+	ZoneScoped;
 	ScanData *scan_data = static_cast<ScanData *>(p_scan_data);
 
 	for (const String &base_path : scan_data->paths_to_scan) {

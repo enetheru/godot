@@ -33,6 +33,7 @@
 #include "core/config/project_settings.h"
 #include "core/object/worker_thread_pool.h"
 #include "core/templates/local_vector.h"
+#include "thirdparty/tracy/tracy/Tracy.hpp"
 
 #ifdef __SSE2__
 #include <pmmintrin.h>
@@ -393,6 +394,8 @@ void RaycastOcclusionCull::Scenario::free() {
 }
 
 void RaycastOcclusionCull::Scenario::_commit_scene(void *p_ud) {
+	tracy::SetThreadName("RayCastOcclusionCull::_commit_scene()");
+	ZoneScoped;
 	Scenario *scenario = (Scenario *)p_ud;
 	int commit_idx = 1 - (scenario->current_scene_idx);
 	rtcCommitScene(scenario->ebr_scene[commit_idx]);

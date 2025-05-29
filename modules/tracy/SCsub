@@ -6,8 +6,8 @@ Import("env_modules")
 
 env_tracy = env_modules.Clone()
 
-env.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_DELAYED_INIT"])
-env_tracy.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_DELAYED_INIT"])
+env.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_DELAYED_INIT", "TRACY_FIBERS"])
+env_tracy.Append(CPPDEFINES=["TRACY_ENABLE", "TRACY_DELAYED_INIT", "TRACY_FIBERS"])
 
 # Thirdparty source files
 thirdparty_obj = []

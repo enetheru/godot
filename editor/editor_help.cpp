@@ -53,6 +53,7 @@
 #include "scene/gui/line_edit.h"
 
 #include "modules/modules_enabled.gen.h" // For gdscript, mono.
+#include "thirdparty/tracy/tracy/Tracy.hpp"
 
 // For syntax highlighting.
 #ifdef MODULE_GDSCRIPT_ENABLED
@@ -2940,6 +2941,8 @@ void EditorHelp::remove_class(const String &p_class) {
 }
 
 void EditorHelp::_load_doc_thread(void *p_udata) {
+	tracy::SetThreadName("EditorHelp");
+	ZoneScoped;
 	Ref<Resource> cache_res = ResourceLoader::load(get_cache_full_path());
 	if (cache_res.is_valid() && cache_res->get_meta("version_hash", "") == doc_version_hash) {
 		Array classes = cache_res->get_meta("classes", Array());

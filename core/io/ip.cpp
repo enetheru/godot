@@ -111,6 +111,7 @@ struct _IP_ResolverPrivate {
 
 	static void _thread_function(void *self) {
 		tracy::SetThreadName("_IP_ResolverPrivate");
+		ZoneScoped;
 		_IP_ResolverPrivate *ipr = static_cast<_IP_ResolverPrivate *>(self);
 
 		while (!ipr->thread_abort.is_set()) {

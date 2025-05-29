@@ -183,7 +183,7 @@ void WorkerThreadPool::_process_task(Task *p_task) {
 }
 
 void WorkerThreadPool::_thread_function(void *p_user) {
-	tracy::SetThreadName("ThreadPoolWorker");
+	tracy::SetThreadName("WorkerThread");
 	ZoneScoped;
 	ThreadData *thread_data = (ThreadData *)p_user;
 

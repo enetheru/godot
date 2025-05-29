@@ -126,6 +126,7 @@
 #include "modules/modules_enabled.gen.h" // For mono.
 
 #include <thirdparty/tracy/tracy/Tracy.hpp>
+const char * physics_frame = "physics_step";
 
 #if defined(MODULE_MONO_ENABLED) && defined(TOOLS_ENABLED)
 #include "modules/mono/editor/bindings_generator.h"
@@ -4424,7 +4425,6 @@ static uint64_t navigation_process_max = 0;
 // will terminate the program. In case of failure, the OS exit code needs
 // to be set explicitly here (defaults to EXIT_SUCCESS).
 bool Main::iteration() {
-	ZoneScoped;
 	iterating++;
 
 	const uint64_t ticks = OS::get_singleton()->get_ticks_usec();
@@ -4474,7 +4474,7 @@ bool Main::iteration() {
 	NavigationServer3D::get_singleton()->sync();
 
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
-		FrameMarkStart("physics_step");
+		FrameMarkStart(physics_frame);
 
 		if (Input::get_singleton()->is_agile_input_event_flushing()) {
 			Input::get_singleton()->flush_buffered_events();
@@ -4519,6 +4519,7 @@ bool Main::iteration() {
 
 			Engine::get_singleton()->_in_physics = false;
 			exit = true;
+			FrameMarkEnd(physics_frame);
 			break;
 		}
 
@@ -4556,7 +4557,7 @@ bool Main::iteration() {
 		physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
 
 		Engine::get_singleton()->_in_physics = false;
-		FrameMarkEnd("physics_step");
+		FrameMarkEnd(physics_frame);
 	}
 
 	if (Input::get_singleton()->is_agile_input_event_flushing()) {
