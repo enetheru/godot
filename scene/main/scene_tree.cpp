@@ -538,7 +538,7 @@ bool SceneTree::physics_process(double p_time) {
 
 	_flush_ugc();
 	{
-		ZoneNamedN( tz__NAME__, "MessageQueue::flush()", true );
+		ZoneNamedN( tz__NAME__, "MessageQueue::flush", true );
 		MessageQueue::get_singleton()->flush(); //small little hack
 	}
 

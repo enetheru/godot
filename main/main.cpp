@@ -4465,7 +4465,7 @@ bool Main::iteration() {
 	// process all our active interfaces
 #ifndef _3D_DISABLED
 	{
-		ZoneNamedN( tz__LINE__, "XRServer::_process()", true);
+		ZoneNamedN( tz__LINE__, "XRServer::_process", true);
 		XRServer::get_singleton()->_process();
 	}
 #endif // _3D_DISABLED
@@ -4492,21 +4492,21 @@ bool Main::iteration() {
 
 #ifndef _3D_DISABLED
 		{
-			ZoneNamedN( tz__LINE__, "PhysicsServer3D::sync()", true);
+			ZoneNamedN( tz__LINE__, "PhysicsServer3D::sync", true);
 			PhysicsServer3D::get_singleton()->sync();
 		}
 		{
-			ZoneNamedN( tz__LINE__, "PhysicsServer3D::flush_queries()", true);
+			ZoneNamedN( tz__LINE__, "PhysicsServer3D::flush_queries", true);
 			PhysicsServer3D::get_singleton()->flush_queries();
 		}
 #endif // _3D_DISABLED
 
 		{
-			ZoneNamedN( tz__LINE__, "PhysicsServer3D::sync()", true);
+			ZoneNamedN( tz__LINE__, "PhysicsServer3D::sync", true);
 			PhysicsServer2D::get_singleton()->sync();
 		}
 		{
-			ZoneNamedN( tz__line_, "PhysicsServer3D::flush_queries()", true);
+			ZoneNamedN( tz__line_, "PhysicsServer3D::flush_queries", true);
 			PhysicsServer2D::get_singleton()->flush_queries();
 		}
 
@@ -4526,7 +4526,7 @@ bool Main::iteration() {
 
 		const uint64_t navigation_begin = OS::get_singleton()->get_ticks_usec();
 		{
-			ZoneNamedN(tz__line__, "NavigationServer3D::process()", true);
+			ZoneNamedN(tz__line__, "NavigationServer3D::process", true);
 			NavigationServer3D::get_singleton()->process(physics_step * time_scale);
 		}
 		navigation_process_ticks = MAX(navigation_process_ticks, OS::get_singleton()->get_ticks_usec() - navigation_begin); // keep the largest one for reference
@@ -4537,7 +4537,7 @@ bool Main::iteration() {
 #ifndef _3D_DISABLED
 		PhysicsServer3D::get_singleton()->end_sync();
 		{
-			ZoneNamedN( tz__line__, "PhysicsServer3D::step()", true);
+			ZoneNamedN( tz__line__, "PhysicsServer3D::step", true);
 			PhysicsServer3D::get_singleton()->step(physics_step * time_scale);
 		}
 #endif // _3D_DISABLED
@@ -4545,7 +4545,7 @@ bool Main::iteration() {
 
 		PhysicsServer2D::get_singleton()->end_sync();
 		{
-			ZoneNamedN( tz__line__, "PhysicsServer2D::step()", true);
+			ZoneNamedN( tz__line__, "PhysicsServer2D::step", true);
 			PhysicsServer2D::get_singleton()->step(physics_step * time_scale);
 		}
 
@@ -4566,7 +4566,7 @@ bool Main::iteration() {
 
 	uint64_t process_begin = OS::get_singleton()->get_ticks_usec();
 	{
-		ZoneNamedN( tz__line__, "MainLoop::process()", true);
+		ZoneNamedN( tz__line__, "MainLoop::process", true);
 		if (OS::get_singleton()->get_main_loop()->process(process_step * time_scale)) {
 			exit = true;
 		}
@@ -4581,7 +4581,7 @@ bool Main::iteration() {
 			RenderingServer::get_singleton()->is_render_loop_enabled();
 
 	if (wants_present || has_pending_resources_for_processing) {
-		ZoneNamedN( tz__line__, "RenderingServer::draw()", true);
+		ZoneNamedN( tz__line__, "RenderingServer::draw", true);
 		wants_present |= force_redraw_requested;
 		if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
 			if (RenderingServer::get_singleton()->has_changed()) {
@@ -4600,19 +4600,19 @@ bool Main::iteration() {
 	uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
 
 	{
-		ZoneNamedN( tz__line__, "ScriptServer::frame()", true);
+		ZoneNamedN( tz__line__, "ScriptServer::frame", true);
 		for (int i = 0; i < ScriptServer::get_language_count(); i++) {
 			ScriptServer::get_language(i)->frame();
 		}
 	}
 
 	{
-		ZoneNamedN( tz__line__, "AudioServer::Update()", true);
+		ZoneNamedN( tz__line__, "AudioServer::update", true);
 		AudioServer::get_singleton()->update();
 	}
 
 	if (EngineDebugger::is_active()) {
-		ZoneNamedN( tz__line__, "EngineDebugger::iteration()", true);
+		ZoneNamedN( tz__line__, "EngineDebugger::iteration", true);
 		EngineDebugger::get_singleton()->iteration(frame_time, process_ticks, physics_process_ticks, physics_step);
 	}
 
@@ -4648,7 +4648,7 @@ bool Main::iteration() {
 	iterating--;
 
 	if (movie_writer) {
-		ZoneNamedN( tz__line__, "MovieWriter::add_frame()", true);
+		ZoneNamedN( tz__line__, "MovieWriter::add_frame", true);
 		movie_writer->add_frame();
 	}
 
@@ -4672,7 +4672,7 @@ bool Main::iteration() {
 		return exit;
 	}
 	{
-		ZoneNamedN( tz__line__, "OS::add_frame_delay()", true);
+		ZoneNamedN( tz__line__, "OS::add_frame_delay", true);
 		OS::get_singleton()->add_frame_delay(DisplayServer::get_singleton()->window_can_draw());
 	}
 

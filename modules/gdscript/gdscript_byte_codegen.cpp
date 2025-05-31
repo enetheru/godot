@@ -33,6 +33,7 @@
 #include "gdscript.h"
 
 #include "core/debugger/engine_debugger.h"
+#include "thirdparty/tracy/common/TracyColor.hpp"
 
 #include <modules/tracy/profiler.h>
 
@@ -172,20 +173,35 @@ void GDScriptByteCodeGenerator::write_start(GDScript *p_script, const StringName
 #ifdef DEBUG_ENABLED
 	function->func_cname = (String(function->source) + " - " + String(p_function_name)).utf8();
 	function->_func_cname = function->func_cname.get_data();
-#ifdef TRACY_ENABLE
-	function->tracy_file = String(function->source).utf8();
-	function->tracy_function = String(p_function_name).utf8();
-	function->tracy_name = String(p_function_name).utf8();
-	function->tracy_sld.file = function->tracy_file;
-	function->tracy_sld.function = function->tracy_function;
-	function->tracy_sld.name = function->tracy_name;
-#endif
 #endif
 
 	function->_static = p_static;
 	function->return_type = p_return_type;
 	function->rpc_config = p_rpc_config;
 	function->_argument_count = 0;
+
+#ifdef TRACY_ENABLE
+	if ( function->_script ) {
+		auto fqn = function->_script->get_fully_qualified_name();
+		if ( fqn.begins_with("res://") ) {
+			function->tracy_name = (fqn + "." + function->name).get_file().utf8();
+		} else {
+			function->tracy_name =(fqn + "." + function->name).utf8();
+		}
+	} else {
+		function->tracy_name = String(function->name).utf8();
+	}
+
+	function->tracy_function = String(function->name).utf8();
+	function->tracy_file = String(function->source).utf8();
+
+	function->tracy_sld.name = function->tracy_name;
+	function->tracy_sld.function = function->tracy_function;
+	function->tracy_sld.file = function->tracy_file;
+	function->tracy_sld.color = tracy::Color::DarkTurquoise;
+
+	// 	// _script->source - actual source code
+#endif
 }
 
 GDScriptFunction *GDScriptByteCodeGenerator::write_end() {
@@ -428,6 +444,10 @@ GDScriptFunction *GDScriptByteCodeGenerator::write_end() {
 #ifdef DEBUG_ENABLED
 void GDScriptByteCodeGenerator::set_signature(const String &p_signature) {
 	function->profile.signature = p_signature;
+#ifdef TRACY_ENABLE
+	function->tracy_function = String(function->profile.signature).utf8();
+	function->tracy_sld.function = function->tracy_function;
+#endif
 }
 #endif
 

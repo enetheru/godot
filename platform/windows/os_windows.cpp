@@ -2073,14 +2073,14 @@ void OS_Windows::run() {
 	}
 
 	{
-		ZoneNamedN( tz__LINE__, "MainLoop::initialize()", true);
+		ZoneNamedN( tz__LINE__, "MainLoop::initialize", true);
 		main_loop->initialize();
 	}
 
 	while (true) {
 		FrameMark;
 		{
-			ZoneNamedN( tz__LINE__, "DisplayServer::process_events()", true);
+			ZoneNamedN( tz__LINE__, "DisplayServer::process_events", true);
 			DisplayServer::get_singleton()->process_events(); // get rid of pending event
 		}
 		if (Main::iteration()) {

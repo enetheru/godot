@@ -16,6 +16,7 @@ String stringify_method(const String &p_method, const Variant **p_args, const in
 		}
 		out += p_args[i]->operator String();
 	}
+	// Truncate results so they dont overload tracy
 	if (out.length() >= 256) {
 		out.resize( 256 );
 		out += " ... )";

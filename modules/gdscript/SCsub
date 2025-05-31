@@ -10,6 +10,7 @@ env_gdscript.add_source_files(env.modules_sources, "*.cpp")
 
 if env.editor_build:
     env_gdscript.add_source_files(env.modules_sources, "./editor/*.cpp")
+    env_gdscript.Append(CPPDEFINES=["TRACY_ENABLE"])
 
     SConscript("editor/script_templates/SCsub")
 
