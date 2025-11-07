@@ -56,6 +56,8 @@ public:
 	virtual void font_remove_size_cache(const RID &p_font_rid, const Vector2i &p_size) override {}
 	virtual void font_set_ascent(const RID &p_font_rid, int64_t p_size, double p_ascent) override {}
 	virtual double font_get_ascent(const RID &p_font_rid, int64_t p_size) const override { return 0; }
+	virtual void font_set_x_height(const RID &p_font_rid, int64_t p_size, double p_x_height) override {}
+	virtual double font_get_x_height(const RID &p_font_rid, int64_t p_size) const override { return 0; }
 	virtual void font_set_descent(const RID &p_font_rid, int64_t p_size, double p_descent) override {}
 	virtual double font_get_descent(const RID &p_font_rid, int64_t p_size) const override { return 0; }
 	virtual void font_set_underline_position(const RID &p_font_rid, int64_t p_size, double p_underline_position) override {}

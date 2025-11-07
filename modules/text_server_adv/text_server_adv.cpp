@@ -1491,6 +1491,34 @@ bool TextServerAdvanced::_ensure_cache_for_size(FontAdvanced *p_font_data, const
 
 		fd->ascent = (fd->face->size->metrics.ascender / 64.0) * fd->scale;
 		fd->descent = (-fd->face->size->metrics.descender / 64.0) * fd->scale;
+
+		// Compute x-height (prefer OS/2 table, fallback to 'x' glyph height).
+		fd->x_height = 0.0f;
+		if (FT_IS_SFNT(fd->face)) {
+			TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(fd->face, FT_SFNT_OS2);
+			if (os2 && os2->version >= 2 && os2->sxHeight > 0) {
+				// Scale from font units to pixels.
+				fd->x_height = (double)FT_MulFix(os2->sxHeight, fd->face->size->metrics.y_scale) / 64.0f;
+			} else {
+				// Fallback: Load 'x' glyph and measure its height from baseline.
+				FT_Error load_err = FT_Load_Char(fd->face, 'x', FT_LOAD_NO_SCALE | FT_LOAD_IGNORE_TRANSFORM);
+				if (load_err == FT_Err_Ok) {
+					fd->x_height = (double)fd->face->glyph->metrics.height / 64.0f * fd->scale;
+				} else {
+					// Ultra-rare fallback: Estimate ~56% of ascent (typical for sans-serif).
+					fd->x_height = fd->ascent * 0.56f;
+				}
+			}
+		} else {
+			// Non-SFNT fonts (rare): Glyph fallback or estimate.
+			FT_Error load_err = FT_Load_Char(fd->face, 'x', FT_LOAD_NO_SCALE | FT_LOAD_IGNORE_TRANSFORM);
+			if (load_err == FT_Err_Ok) {
+				fd->x_height = (double)fd->face->glyph->metrics.height / 64.0f * fd->scale;
+			} else {
+				fd->x_height = fd->ascent * 0.56f;
+			}
+		}
+
 		fd->underline_position = (-FT_MulFix(fd->face->underline_position, fd->face->size->metrics.y_scale) / 64.0) * fd->scale;
 		fd->underline_thickness = (FT_MulFix(fd->face->underline_thickness, fd->face->size->metrics.y_scale) / 64.0) * fd->scale;
 
@@ -2874,6 +2902,40 @@ double TextServerAdvanced::_font_get_ascent(const RID &p_font_rid, int64_t p_siz
 	} else {
 		return ffsd->ascent;
 	}
+}
+
+void TextServerAdvanced::_font_set_x_height(const RID &p_font_rid, int64_t p_size, double p_x_height) {
+	FontAdvanced *fd = _get_font_data(p_font_rid);
+	ERR_FAIL_NULL(fd);
+
+	MutexLock lock(fd->mutex);
+	const Vector2i size = _get_size(fd, p_size);
+
+	FontForSizeAdvanced *ffsd = nullptr;
+	ERR_FAIL_COND(!_ensure_cache_for_size(fd, size, ffsd));
+	ffsd->x_height = p_x_height;
+}
+
+double TextServerAdvanced::_font_get_x_height(const RID &p_font_rid, int64_t p_size) const {
+	FontAdvanced *fd = _get_font_data(p_font_rid);
+	ERR_FAIL_COND_V(!fd, 0.0);
+
+	MutexLock lock(fd->mutex);
+	const Vector2i size = _get_size(fd, p_size);
+
+	FontForSizeAdvanced *ffsd = nullptr;
+	ERR_FAIL_COND_V(!_ensure_cache_for_size(fd, size, ffsd), 0.0);
+
+	if (fd->msdf) {
+		return ffsd->x_height * (double)p_size / (double)fd->msdf_source_size;
+	}
+	if (fd->fixed_size > 0 && fd->fixed_size_scale_mode != FIXED_SIZE_SCALE_DISABLE && size.x != p_size * 64) {
+		if (fd->fixed_size_scale_mode == FIXED_SIZE_SCALE_ENABLED) {
+			return ffsd->x_height * (double)p_size / (double)fd->fixed_size;
+		}
+		return ffsd->x_height * Math::round((double)p_size / (double)fd->fixed_size);
+	}
+	return ffsd->x_height;
 }
 
 void TextServerAdvanced::_font_set_descent(const RID &p_font_rid, int64_t p_size, double p_descent) {

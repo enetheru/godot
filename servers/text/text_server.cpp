@@ -305,6 +305,9 @@ void TextServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("font_set_ascent", "font_rid", "size", "ascent"), &TextServer::font_set_ascent);
 	ClassDB::bind_method(D_METHOD("font_get_ascent", "font_rid", "size"), &TextServer::font_get_ascent);
 
+	ClassDB::bind_method(D_METHOD("font_set_x_height", "font_rid", "size", "x_height"), &TextServer::font_set_x_height);
+	ClassDB::bind_method(D_METHOD("font_get_x_height", "font_rid", "size"), &TextServer::font_get_x_height);
+
 	ClassDB::bind_method(D_METHOD("font_set_descent", "font_rid", "size", "descent"), &TextServer::font_set_descent);
 	ClassDB::bind_method(D_METHOD("font_get_descent", "font_rid", "size"), &TextServer::font_get_descent);
 

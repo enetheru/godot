@@ -365,6 +365,9 @@ public:
 	virtual void font_set_ascent(const RID &p_font_rid, int64_t p_size, double p_ascent) = 0;
 	virtual double font_get_ascent(const RID &p_font_rid, int64_t p_size) const = 0;
 
+	virtual void font_set_x_height(const RID &p_font_rid, int64_t p_size, double p_x_height) = 0;
+	virtual double font_get_x_height(const RID &p_font_rid, int64_t p_size) const = 0;
+
 	virtual void font_set_descent(const RID &p_font_rid, int64_t p_size, double p_descent) = 0;
 	virtual double font_get_descent(const RID &p_font_rid, int64_t p_size) const = 0;
 

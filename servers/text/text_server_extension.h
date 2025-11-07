@@ -240,6 +240,11 @@ public:
 	GDVIRTUAL3_REQUIRED(_font_set_ascent, RID, int64_t, double);
 	GDVIRTUAL2RC_REQUIRED(double, _font_get_ascent, RID, int64_t);
 
+	virtual void font_set_x_height(const RID &p_font_rid, int64_t p_size, double p_x_height) override;
+	virtual double font_get_x_height(const RID &p_font_rid, int64_t p_size) const override;
+	GDVIRTUAL3_REQUIRED(_font_set_x_height, RID, int64_t, double);
+	GDVIRTUAL2RC_REQUIRED(double, _font_get_x_height, RID, int64_t);
+
 	virtual void font_set_descent(const RID &p_font_rid, int64_t p_size, double p_descent) override;
 	virtual double font_get_descent(const RID &p_font_rid, int64_t p_size) const override;
 	GDVIRTUAL3_REQUIRED(_font_set_descent, RID, int64_t, double);

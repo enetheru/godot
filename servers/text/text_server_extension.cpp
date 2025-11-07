@@ -149,6 +149,9 @@ void TextServerExtension::_bind_methods() {
 	GDVIRTUAL_BIND(_font_set_ascent, "font_rid", "size", "ascent");
 	GDVIRTUAL_BIND(_font_get_ascent, "font_rid", "size");
 
+	GDVIRTUAL_BIND(_font_set_x_height, "font_rid", "size", "x_height");
+	GDVIRTUAL_BIND(_font_get_x_height, "font_rid", "size");
+
 	GDVIRTUAL_BIND(_font_set_descent, "font_rid", "size", "descent");
 	GDVIRTUAL_BIND(_font_get_descent, "font_rid", "size");
 
@@ -793,6 +796,16 @@ void TextServerExtension::font_set_ascent(const RID &p_font_rid, int64_t p_size,
 double TextServerExtension::font_get_ascent(const RID &p_font_rid, int64_t p_size) const {
 	double ret = 0;
 	GDVIRTUAL_CALL(_font_get_ascent, p_font_rid, p_size, ret);
+	return ret;
+}
+
+void TextServerExtension::font_set_x_height(const RID &p_font_rid, int64_t p_size, double p_x_height) {
+	GDVIRTUAL_CALL(_font_set_x_height, p_font_rid, p_size, p_x_height);
+}
+
+double TextServerExtension::font_get_x_height(const RID &p_font_rid, int64_t p_size) const {
+	double ret = 0;
+	GDVIRTUAL_CALL(_font_get_x_height, p_font_rid, p_size, ret);
 	return ret;
 }
 

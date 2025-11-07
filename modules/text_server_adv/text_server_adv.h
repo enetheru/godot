@@ -290,6 +290,7 @@ class TextServerAdvanced : public TextServerExtension {
 	struct FontAdvanced;
 	struct FontForSizeAdvanced {
 		double ascent = 0.0;
+		double x_height = 0.0;
 		double descent = 0.0;
 		double underline_position = 0.0;
 		double underline_thickness = 0.0;
@@ -941,6 +942,9 @@ public:
 
 	MODBIND3(font_set_ascent, const RID &, int64_t, double);
 	MODBIND2RC(double, font_get_ascent, const RID &, int64_t);
+
+	MODBIND3(font_set_x_height, const RID &, int64_t, double);
+	MODBIND2RC(double, font_get_x_height, const RID &, int64_t);
 
 	MODBIND3(font_set_descent, const RID &, int64_t, double);
 	MODBIND2RC(double, font_get_descent, const RID &, int64_t);
