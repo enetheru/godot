@@ -127,6 +127,14 @@
 				Returns the font ascent (number of pixels above the baseline).
 			</description>
 		</method>
+		<method name="_font_get_x_height">
+			<return type="float" />
+			<param index="0" name="font_rid" type="RID" />
+			<param index="1" name="size" type="int" />
+			<description>
+				Returns the x-height (height of lowercase letters like 'x') in pixels for the given font and size.
+			</description>
+		</method>
 		<method name="_font_get_baseline_offset" qualifiers="virtual const">
 			<return type="float" />
 			<param index="0" name="font_rid" type="RID" />
