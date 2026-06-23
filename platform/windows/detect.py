@@ -819,7 +819,10 @@ def configure_mingw(env: "SConsEnvironment"):
         env.Append(CPPDEFINES=["ACCESSKIT_ENABLED"])
 
     if env.debug_features:
-        env.Append(LIBS=["psapi", "dbghelp"])
+        env.Append(LIBS=["psapi"])
+
+    if env.debug_features or env["profiler"] == "tracy":
+        env.Append(LIBS=["dbghelp"])
 
     if env["vulkan"]:
         env.Append(CPPDEFINES=["VULKAN_ENABLED", "RD_ENABLED"])
