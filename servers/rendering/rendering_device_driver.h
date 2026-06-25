@@ -58,6 +58,8 @@ class RenderingShaderContainerFormat;
 #define ALLOCA_ARRAY(m_type, m_count) ((m_type *)ALLOCA(sizeof(m_type) * (m_count)))
 #define ALLOCA_SINGLE(m_type) ALLOCA_ARRAY(m_type, 1)
 
+#define TRACY_ENABLE
+
 // This helps forwarding certain arrays to the API with confidence.
 #define ARRAYS_COMPATIBLE(m_type_a, m_type_b) (sizeof(m_type_a) == sizeof(m_type_b) && alignof(m_type_a) == alignof(m_type_b))
 // This is used when you also need to ensure structured types are compatible field-by-field.
@@ -850,6 +852,9 @@ public:
 	virtual bool is_composite_alpha_supported(CommandQueueID p_queue) const { return false; }
 
 	/******************/
+
+	virtual void tracy_init(CommandQueueID p_queue, CommandBufferID p_buffer) {}
+
 
 	virtual ~RenderingDeviceDriver();
 };

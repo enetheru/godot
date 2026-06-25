@@ -7127,6 +7127,7 @@ Error RenderingDevice::initialize(RenderingContextDriver *p_context, DisplayServ
 		frames.clear();
 		ERR_FAIL_V_MSG(FAILED, "Failed to create frame data.");
 	}
+	driver->tracy_init(main_queue, frames[0].command_buffer);
 
 	// Start from frame count, so everything else is immediately old.
 	frames_drawn = frames.size();

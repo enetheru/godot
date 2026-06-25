@@ -46,6 +46,9 @@
 
 #include "drivers/vulkan/godot_vulkan.h"
 
+#include "tracy/TracyVulkan.hpp"
+
+
 // Design principles:
 // - Vulkan structs are zero-initialized and fields not requiring a non-zero value are omitted (except in cases where expresivity reasons apply).
 class RenderingDeviceDriverVulkan : public RenderingDeviceDriver {
@@ -142,6 +145,11 @@ class RenderingDeviceDriverVulkan : public RenderingDeviceDriver {
 #if defined(VK_TRACK_DEVICE_MEMORY)
 	bool device_memory_report_support = false;
 #endif
+
+// #ifdef TRACY_ENABLE
+	TracyVkCtx tracy_vk_context = nullptr;
+// #endif
+
 #if defined(SWAPPY_FRAME_PACING_ENABLED)
 	// Swappy frame pacer for Android.
 	bool swappy_frame_pacer_enable = false;
@@ -735,6 +743,12 @@ private:
 	PagedAllocator<VersatileResource, true> resources_allocator;
 
 	/******************/
+
+	/***************/
+	/**** Tracy ****/
+	/***************/
+public:
+	virtual void tracy_init(CommandQueueID p_queue, CommandBufferID p_buffer) override final;
 
 public:
 	RenderingDeviceDriverVulkan(RenderingContextDriverVulkan *p_context_driver);

@@ -6562,6 +6562,22 @@ bool RenderingDeviceDriverVulkan::is_composite_alpha_supported(CommandQueueID p_
 
 /******************/
 
+void RenderingDeviceDriverVulkan::tracy_init(CommandQueueID p_cmd_queue, CommandBufferID p_cmd_buffer) {
+
+#define TRACY_ENABLE
+#ifdef TRACY_ENABLE
+	const CommandQueue *command_queue = (CommandQueue *)(p_cmd_queue.id);
+	const auto queue = &queue_families[command_queue->queue_family][command_queue->queue_index];
+
+	CommandBufferInfo * command_buffer = (CommandBufferInfo *)(p_cmd_buffer.id);
+
+	// 5. Initialize Tracy Vulkan context
+	tracy_vk_context = TracyVkContext(physical_device, vk_device, queue->queue, command_buffer->vk_command_buffer);
+
+#endif
+}
+
+
 RenderingDeviceDriverVulkan::RenderingDeviceDriverVulkan(RenderingContextDriverVulkan *p_context_driver) {
 	DEV_ASSERT(p_context_driver != nullptr);
 
@@ -6570,6 +6586,10 @@ RenderingDeviceDriverVulkan::RenderingDeviceDriverVulkan(RenderingContextDriverV
 }
 
 RenderingDeviceDriverVulkan::~RenderingDeviceDriverVulkan() {
+
+	TracyVkDestroy(tracy_vk_context);
+	tracy_vk_context = nullptr;
+
 #if defined(DEBUG_ENABLED) || defined(DEV_ENABLED)
 	if (breadcrumb_buffer != BufferID()) {
 		buffer_free(breadcrumb_buffer);
