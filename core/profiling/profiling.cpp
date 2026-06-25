@@ -35,6 +35,7 @@
 
 #include "core/os/mutex.h"
 #include "core/templates/paged_allocator.h"
+#include "core/version.h"
 
 namespace tracy {
 static bool configured = false;
@@ -168,8 +169,7 @@ void godot_init_profiler() {
 	tracy::configured = true;
 
 	// Send our first event to tracy; otherwise it doesn't start collecting data.
-	// FrameMark is kind of fitting because it communicates "this is where we started tracing".
-	FrameMark;
+	TracyAppInfo(VERSION_FULL_BUILD, strlen(VERSION_FULL_BUILD));
 }
 
 void godot_cleanup_profiler() {
