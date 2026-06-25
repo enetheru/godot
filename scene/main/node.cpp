@@ -30,6 +30,7 @@
 
 #include "node.h"
 #include "node.compat.inc"
+#include "tracy/Tracy.hpp"
 
 STATIC_ASSERT_INCOMPLETE_TYPE(class, Mesh);
 STATIC_ASSERT_INCOMPLETE_TYPE(class, RenderingServer);
@@ -174,6 +175,7 @@ void Node::_notification(int p_notification) {
 			}
 
 			data.tree->nodes_in_tree_count++;
+			TracyPlot("NodesInTree", data.tree->nodes_in_tree_count);
 
 		} break;
 
@@ -201,6 +203,7 @@ void Node::_notification(int p_notification) {
 			}
 
 			data.tree->nodes_in_tree_count--;
+			TracyPlot("NodesInTree", data.tree->nodes_in_tree_count);
 
 			if (data.input) {
 				remove_from_group("_vp_input" + itos(get_viewport()->get_instance_id()));
@@ -4103,6 +4106,8 @@ Node::Node() {
 	_define_ancestry(AncestralClass::NODE);
 #ifdef DEBUG_ENABLED
 	total_node_count.increment();
+	TracyPlot("TotalNodeCount", total_node_count.get());
+
 #endif
 	// Default member initializer for bitfield is a C++20 extension, so:
 
@@ -4152,6 +4157,7 @@ Node::~Node() {
 
 #ifdef DEBUG_ENABLED
 	total_node_count.decrement();
+	TracyPlot("TotalNodeCount", total_node_count.get());
 #endif
 }
 

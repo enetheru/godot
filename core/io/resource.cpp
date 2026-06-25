@@ -36,6 +36,7 @@
 #include "core/os/os.h"
 #include "core/variant/container_type_validate.h"
 #include "scene/main/node.h" //only so casting works
+#include "tracy/Tracy.hpp"
 
 void Resource::emit_changed() {
 	if (emit_changed_state != EMIT_CHANGED_UNBLOCKED) {
@@ -81,6 +82,8 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
 
 		if (!path_cache.is_empty()) {
 			ResourceCache::resources.erase(path_cache);
+			TracyPlot("CachedResourceCount", ResourceCache::resources.size());
+
 		}
 
 		path_cache = "";
@@ -91,6 +94,7 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
 			if (p_take_over) {
 				existing->path_cache = String();
 				ResourceCache::resources.erase(p_path);
+				TracyPlot("CachedResourceCount", ResourceCache::resources.size());
 			} else {
 				ERR_FAIL_MSG(vformat("Another resource is loaded from path '%s' (possible cyclic resource inclusion).", p_path));
 			}
@@ -100,6 +104,7 @@ void Resource::set_path(const String &p_path, bool p_take_over) {
 
 		if (!path_cache.is_empty()) {
 			ResourceCache::resources[path_cache] = this;
+			TracyPlot("CachedResourceCount", ResourceCache::resources.size());
 		}
 	}
 
@@ -786,6 +791,7 @@ Resource::~Resource() {
 	HashMap<String, Resource *>::Iterator E = ResourceCache::resources.find(path_cache);
 	if (likely(E && E->value == this)) {
 		ResourceCache::resources.remove(E);
+		TracyPlot("CachedResourceCount", ResourceCache::resources.size());
 	}
 }
 
@@ -812,6 +818,7 @@ void ResourceCache::clear() {
 	}
 
 	resources.clear();
+	TracyPlot("CachedResourceCount", resources.size());
 }
 
 bool ResourceCache::has(const String &p_path) {
@@ -826,6 +833,7 @@ bool ResourceCache::has(const String &p_path) {
 			// This resource is in the process of being deleted, ignore its existence.
 			(*res)->path_cache = String();
 			resources.erase(p_path);
+			TracyPlot("CachedResourceCount", resources.size());
 			res = nullptr;
 		}
 	}
@@ -851,6 +859,7 @@ Ref<Resource> ResourceCache::get_ref(const String &p_path) {
 			// This resource is in the process of being deleted, ignore its existence
 			(*res)->path_cache = String();
 			resources.erase(p_path);
+			TracyPlot("CachedResourceCount", resources.size());
 			res = nullptr;
 		}
 	}
@@ -878,6 +887,7 @@ void ResourceCache::get_cached_resources(List<Ref<Resource>> *p_resources) {
 
 	for (const String &E : to_remove) {
 		resources.erase(E);
+		TracyPlot("CachedResourceCount", resources.size());
 	}
 }
 

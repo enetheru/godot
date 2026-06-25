@@ -37,6 +37,7 @@
 #include "scene/main/scene_tree.h"
 #include "servers/audio/audio_server.h"
 #include "servers/rendering/rendering_server.h"
+#include "tracy/Tracy.hpp"
 
 #ifndef NAVIGATION_2D_DISABLED
 #include "servers/navigation_2d/navigation_server_2d.h"
@@ -534,14 +535,17 @@ Performance::MonitorType Performance::get_monitor_type(Monitor p_monitor) const 
 
 void Performance::set_process_time(double p_pt) {
 	_process_time = p_pt;
+	TracyPlot("ProcessTime", p_pt);
 }
 
 void Performance::set_physics_process_time(double p_pt) {
 	_physics_process_time = p_pt;
+	TracyPlot("PhysicsTime", p_pt);
 }
 
 void Performance::set_navigation_process_time(double p_pt) {
 	_navigation_process_time = p_pt;
+	TracyPlot("NavigationTime", p_pt);
 }
 
 void Performance::add_custom_monitor(const StringName &p_id, const Callable &p_callable, const Vector<Variant> &p_args, MonitorType p_type) {
@@ -603,8 +607,11 @@ uint64_t Performance::get_monitor_modification_time() {
 
 Performance::Performance() {
 	_process_time = 0;
+	TracyPlot("ProcessTime", (int64_t)0);
 	_physics_process_time = 0;
+	TracyPlot("PhysicsTime", (int64_t)0);
 	_navigation_process_time = 0;
+	TracyPlot("NavigationTime", (int64_t)0);
 	_monitor_modification_time = 0;
 	singleton = this;
 }

@@ -936,8 +936,11 @@ void RendererViewport::draw_viewports(bool p_swap_buffers) {
 	RSG::scene->set_debug_draw_mode(RS::VIEWPORT_DEBUG_DRAW_DISABLED);
 
 	total_objects_drawn = objects_drawn;
+	TracyPlot("TotalObjectsDrawn", static_cast<int64_t>(objects_drawn));
 	total_vertices_drawn = vertices_drawn;
+	TracyPlot("TotalVerticesDrawn", static_cast<int64_t>(vertices_drawn));
 	total_draw_calls_used = draw_calls_used;
+	TracyPlot("TotalDrawCalls", static_cast<int64_t>(draw_calls_used));
 
 	RENDER_TIMESTAMP("< Render Viewports");
 

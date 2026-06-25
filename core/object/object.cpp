@@ -39,6 +39,7 @@
 #include "core/string/print_string.h"
 #include "core/string/translation_server.h"
 #include "core/variant/typed_array.h"
+#include "tracy/Tracy.hpp"
 
 #ifdef DEBUG_ENABLED
 
@@ -2613,6 +2614,7 @@ ObjectID ObjectDB::add_instance(Object *p_object) {
 	}
 
 	slot_count++;
+	TracyPlot("ObjectCount", slot_count);
 
 	spin_lock.unlock();
 
@@ -2642,6 +2644,7 @@ void ObjectDB::remove_instance(Object *p_object) {
 #endif
 	//decrease slot count
 	slot_count--;
+	TracyPlot("ObjectCount", slot_count);
 	//set the free slot properly
 	object_slots[slot_count].next_free = slot;
 	//invalidate, so checks against it fail

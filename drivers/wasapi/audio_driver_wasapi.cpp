@@ -34,6 +34,7 @@
 
 #include "core/config/project_settings.h"
 #include "core/os/os.h"
+#include "tracy/Tracy.hpp"
 
 #include <functiondiscoverykeys.h>
 
@@ -423,6 +424,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_i
 			// https://docs.microsoft.com/en-us/windows/win32/directshow/reference-time
 			// Convert REFTIME to seconds as godot uses for latency
 			real_latency = (float)latency / (float)REFTIMES_PER_SEC;
+			TracyPlot("AudioLatency", real_latency);
 		}
 
 	} else {
@@ -471,6 +473,7 @@ Error AudioDriverWASAPI::audio_device_init(AudioDeviceWASAPI *p_device, bool p_i
 			hr = device_audio_client_3->GetCurrentSharedModeEnginePeriod(&current_pwfex, &output_latency_in_frames);
 			if (hr == OK) {
 				real_latency = (float)output_latency_in_frames / (float)current_pwfex->nSamplesPerSec;
+				TracyPlot("AudioLatency", real_latency);
 				CoTaskMemFree(current_pwfex);
 			} else {
 				print_verbose("WASAPI: GetCurrentSharedModeEnginePeriod failed with error 0x" + String::num_uint64(hr, 16) + ", falling back to IAudioClient.");

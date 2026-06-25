@@ -5033,6 +5033,7 @@ bool Main::iteration() {
 			hide_print_fps_attempts--;
 		}
 
+		TracyPlot("fps", static_cast<int64_t>(frames));
 		Engine::get_singleton()->_fps = frames;
 		performance->set_process_time(USEC_TO_SEC(process_max));
 		performance->set_physics_process_time(USEC_TO_SEC(physics_process_max));
