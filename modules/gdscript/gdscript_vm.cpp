@@ -34,6 +34,7 @@
 
 #include "core/os/os.h"
 #include "core/profiling/profiling.h"
+#include "tracy/Tracy.hpp"
 
 #ifdef DEBUG_ENABLED
 
@@ -539,7 +540,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 	uint32_t alloca_size = 0;
 	GDScript *script;
 	int ip = 0;
-	int line = _initial_line;
+	int line = _initial_line; //Line is only updated in debug mode in OPCODE_LINE
 
 	if (p_state) {
 		//use existing (supplied) state (awaited)
@@ -749,6 +750,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 		OPCODE_SWITCH(_code_ptr[ip]) {
 			OPCODE(OPCODE_OPERATOR) {
+				ZoneNamedN(tzc, "OPCODE_OPERATOR", true);
 				constexpr int _pointer_size = sizeof(Variant::ValidatedOperatorEvaluator) / sizeof(*_code_ptr);
 				CHECK_SPACE(7 + _pointer_size);
 
@@ -836,6 +838,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_OPERATOR_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_OPERATOR_VALIDATED", true);
 				CHECK_SPACE(5);
 
 				int operator_idx = _code_ptr[ip + 4];
@@ -853,6 +856,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_TYPE_TEST_BUILTIN) {
+				ZoneNamedN(tzc, "OPCODE_TYPE_TEST_BUILTIN", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -867,6 +871,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_TYPE_TEST_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_TYPE_TEST_ARRAY", true);
 				CHECK_SPACE(6);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -890,6 +895,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_TYPE_TEST_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_TYPE_TEST_DICTIONARY", true);
 				CHECK_SPACE(9);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -920,6 +926,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_TYPE_TEST_NATIVE) {
+				ZoneNamedN(tzc, "OPCODE_TYPE_TEST_NATIVE", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -942,6 +949,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_TYPE_TEST_SCRIPT) {
+				ZoneNamedN(tzc, "OPCODE_TYPE_TEST_SCRIPT", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -976,6 +984,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_KEYED) {
+				ZoneNamedN(tzc, "OPCODE_SET_KEYED", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -1022,6 +1031,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_KEYED_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_SET_KEYED_VALIDATED", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -1056,6 +1066,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_INDEXED_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_SET_INDEXED_VALIDATED", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -1092,6 +1103,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_KEYED) {
+				ZoneNamedN(tzc, "OPCODE_GET_KEYED", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(src, 0);
@@ -1128,6 +1140,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_KEYED_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_GET_KEYED_VALIDATED", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(src, 0);
@@ -1164,6 +1177,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_INDEXED_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_GET_INDEXED_VALIDATED", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(src, 0);
@@ -1196,6 +1210,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_NAMED) {
+				ZoneNamedN(tzc, "OPCODE_SET_NAMED", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -1233,6 +1248,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_NAMED_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_SET_NAMED_VALIDATED", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(dst, 0);
@@ -1248,6 +1264,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_NAMED) {
+				ZoneNamedN(tzc, "OPCODE_GET_NAMED", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(src, 0);
@@ -1278,6 +1295,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_NAMED_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_GET_NAMED_VALIDATED", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(src, 0);
@@ -1293,6 +1311,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_MEMBER) {
+				ZoneNamedN(tzc, "OPCODE_SET_MEMBER", true);
 				CHECK_SPACE(3);
 				GET_VARIANT_PTR(src, 0);
 				int indexname = _code_ptr[ip + 2];
@@ -1317,6 +1336,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_MEMBER) {
+				ZoneNamedN(tzc, "OPCODE_GET_MEMBER", true);
 				CHECK_SPACE(3);
 				GET_VARIANT_PTR(dst, 0);
 				int indexname = _code_ptr[ip + 2];
@@ -1336,6 +1356,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_SET_STATIC_VARIABLE) {
+				ZoneNamedN(tzc, "OPCODE_SET_STATIC_VARIABLE", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(value, 0);
@@ -1354,6 +1375,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_GET_STATIC_VARIABLE) {
+				ZoneNamedN(tzc, "OPCODE_GET_STATIC_VARIABLE", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(target, 0);
@@ -1372,6 +1394,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN", true);
 				CHECK_SPACE(3);
 				GET_VARIANT_PTR(dst, 0);
 				GET_VARIANT_PTR(src, 1);
@@ -1383,6 +1406,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_NULL) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_NULL", true);
 				CHECK_SPACE(2);
 				GET_VARIANT_PTR(dst, 0);
 
@@ -1393,6 +1417,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_TRUE) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_TRUE", true);
 				CHECK_SPACE(2);
 				GET_VARIANT_PTR(dst, 0);
 
@@ -1403,6 +1428,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_FALSE) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_FALSE", true);
 				CHECK_SPACE(2);
 				GET_VARIANT_PTR(dst, 0);
 
@@ -1413,6 +1439,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_TYPED_BUILTIN) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_TYPED_BUILTIN", true);
 				CHECK_SPACE(4);
 				GET_VARIANT_PTR(dst, 0);
 				GET_VARIANT_PTR(src, 1);
@@ -1442,6 +1469,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_TYPED_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_TYPED_ARRAY", true);
 				CHECK_SPACE(6);
 				GET_VARIANT_PTR(dst, 0);
 				GET_VARIANT_PTR(src, 1);
@@ -1477,6 +1505,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_TYPED_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_TYPED_DICTIONARY", true);
 				CHECK_SPACE(9);
 				GET_VARIANT_PTR(dst, 0);
 				GET_VARIANT_PTR(src, 1);
@@ -1521,6 +1550,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_TYPED_NATIVE) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_TYPED_NATIVE", true);
 				CHECK_SPACE(4);
 				GET_VARIANT_PTR(dst, 0);
 				GET_VARIANT_PTR(src, 1);
@@ -1557,6 +1587,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ASSIGN_TYPED_SCRIPT) {
+				ZoneNamedN(tzc, "OPCODE_ASSIGN_TYPED_SCRIPT", true);
 				CHECK_SPACE(4);
 				GET_VARIANT_PTR(dst, 0);
 				GET_VARIANT_PTR(src, 1);
@@ -1615,6 +1646,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CAST_TO_BUILTIN) {
+				ZoneNamedN(tzc, "OPCODE_CAST_TO_BUILTIN", true);
 				CHECK_SPACE(4);
 				GET_VARIANT_PTR(src, 0);
 				GET_VARIANT_PTR(dst, 1);
@@ -1644,6 +1676,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CAST_TO_NATIVE) {
+				ZoneNamedN(tzc, "OPCODE_CAST_TO_NATIVE", true);
 				CHECK_SPACE(4);
 				GET_VARIANT_PTR(src, 0);
 				GET_VARIANT_PTR(dst, 1);
@@ -1675,6 +1708,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CAST_TO_SCRIPT) {
+				ZoneNamedN(tzc, "OPCODE_CAST_TO_SCRIPT", true);
 				CHECK_SPACE(4);
 				GET_VARIANT_PTR(src, 0);
 				GET_VARIANT_PTR(dst, 1);
@@ -1724,6 +1758,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CONSTRUCT) {
+				ZoneNamedN(tzc, "OPCODE_CONSTRUCT", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(2 + instr_arg_count);
 
@@ -1752,6 +1787,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CONSTRUCT_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_CONSTRUCT_VALIDATED", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(2 + instr_arg_count);
 				ip += instr_arg_count;
@@ -1773,6 +1809,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CONSTRUCT_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_CONSTRUCT_ARRAY", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(1 + instr_arg_count);
 				ip += instr_arg_count;
@@ -1795,6 +1832,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CONSTRUCT_TYPED_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_CONSTRUCT_TYPED_ARRAY", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 				ip += instr_arg_count;
@@ -1825,6 +1863,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CONSTRUCT_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_CONSTRUCT_DICTIONARY", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(2 + instr_arg_count);
 
@@ -1850,6 +1889,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CONSTRUCT_TYPED_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_CONSTRUCT_TYPED_DICTIONARY", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(6 + instr_arg_count);
 				ip += instr_arg_count;
@@ -1891,6 +1931,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			OPCODE(OPCODE_CALL_ASYNC)
 			OPCODE(OPCODE_CALL_RETURN)
 			OPCODE(OPCODE_CALL) {
+				// ZoneNamedN(tzc, "OPCODE_CALL", true);
 				bool call_ret = (_code_ptr[ip]) != OPCODE_CALL;
 #ifdef DEBUG_ENABLED
 				bool call_async = (_code_ptr[ip]) == OPCODE_CALL_ASYNC;
@@ -1907,7 +1948,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GD_ERR_BREAK(methodname_idx < 0 || methodname_idx >= _global_names_count);
 				const StringName *methodname = &_global_names_ptr[methodname_idx];
 
-				GodotProfileZoneScriptSystemCall(methodname, source, name, *methodname, line);
+				// GodotProfileZoneScriptSystemCall(methodname, source, name, *methodname, line);
+				// This trace is redundant, the method that will be called, has
+				// a trace statement at the start of this function call.
 
 				GET_INSTRUCTION_ARG(base, argc);
 				Variant **argptrs = instruction_args;
@@ -2018,6 +2061,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 			OPCODE(OPCODE_CALL_METHOD_BIND)
 			OPCODE(OPCODE_CALL_METHOD_BIND_RET) {
+				ZoneNamedN(tzc, "OPCODE_CALL_METHOD_BIND_RET", true);
 				bool call_ret = (_code_ptr[ip]) == OPCODE_CALL_METHOD_BIND_RET;
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
@@ -2029,8 +2073,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GD_ERR_BREAK(_code_ptr[ip + 2] < 0 || _code_ptr[ip + 2] >= _methods_count);
 				MethodBind *method = _methods_ptr[_code_ptr[ip + 2]];
 
-				GodotProfileZoneScriptSystemCall(method, source, name, method->get_name(), line);
-
+				GodotProfileZoneScriptSystemCall(method, source,
+					call_ret ? "OPCODE_CALL_METHOD_BIND_RET" : "OPCODE_CALL_METHOD_BIND",
+					String(".").join({method->get_instance_class(),method->get_name()}), line);
 				GET_INSTRUCTION_ARG(base, argc);
 
 #ifdef DEBUG_ENABLED
@@ -2104,6 +2149,8 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_BUILTIN_STATIC) {
+				ZoneNamedN(tzc, "OPCODE_CALL_BUILTIN_STATIC", true);
+
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(4 + instr_arg_count);
 
@@ -2116,7 +2163,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GD_ERR_BREAK(methodname_idx < 0 || methodname_idx >= _global_names_count);
 				const StringName *methodname = &_global_names_ptr[methodname_idx];
 
-				GodotProfileZoneScriptSystemCall(methodname, source, name, *methodname, line);
+				GodotProfileZoneScriptSystemCall(methodname, source,
+					"OPCODE_CALL_BUILTIN_STATIC",
+					*methodname, line);
 
 				int argc = _code_ptr[ip + 3];
 				GD_ERR_BREAK(argc < 0);
@@ -2140,6 +2189,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_NATIVE_STATIC) {
+				ZoneNamedN(tzc, "OPCODE_CALL_NATIVE_STATIC", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2148,7 +2198,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GD_ERR_BREAK(_code_ptr[ip + 1] < 0 || _code_ptr[ip + 1] >= _methods_count);
 				MethodBind *method = _methods_ptr[_code_ptr[ip + 1]];
 
-				GodotProfileZoneScriptSystemCall(method, source, name, method->get_name(), line);
+				GodotProfileZoneScriptSystemCall(method, source,
+					"OPCODE_CALL_NATIVE_STATIC",
+					String(".").join({method->get_instance_class(),method->get_name()}), line);
 
 				int argc = _code_ptr[ip + 2];
 				GD_ERR_BREAK(argc < 0);
@@ -2185,6 +2237,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_NATIVE_STATIC_VALIDATED_RETURN) {
+				ZoneNamedN(tzc, "OPCODE_CALL_NATIVE_STATIC_VALIDATED_RETURN", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2196,7 +2249,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GD_ERR_BREAK(_code_ptr[ip + 2] < 0 || _code_ptr[ip + 2] >= _methods_count);
 				MethodBind *method = _methods_ptr[_code_ptr[ip + 2]];
 
-				GodotProfileZoneScriptSystemCall(method, source, name, method->get_name(), line);
+				GodotProfileZoneScriptSystemCall(method, source,
+					"OPCODE_CALL_NATIVE_STATIC_VALIDATED_RETURN",
+					String(".").join({method->get_instance_class(),method->get_name()}), line);
 
 				Variant **argptrs = instruction_args;
 
@@ -2223,6 +2278,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_NATIVE_STATIC_VALIDATED_NO_RETURN) {
+				ZoneNamedN(tzc, "OPCODE_CALL_NATIVE_STATIC_VALIDATED_NO_RETURN", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2234,8 +2290,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GD_ERR_BREAK(_code_ptr[ip + 2] < 0 || _code_ptr[ip + 2] >= _methods_count);
 				MethodBind *method = _methods_ptr[_code_ptr[ip + 2]];
 
-				GodotProfileZoneScriptSystemCall(method, source, name, method->get_name(), line);
-
+				GodotProfileZoneScriptSystemCall(method, source,
+					"OPCODE_CALL_NATIVE_STATIC_VALIDATED_NO_RETURN",
+					String(".").join({method->get_instance_class(),method->get_name()}), line);
 				Variant **argptrs = instruction_args;
 #ifdef DEBUG_ENABLED
 				uint64_t call_time = 0;
@@ -2261,6 +2318,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_METHOD_BIND_VALIDATED_RETURN) {
+				ZoneNamedN(tzc, "OPCODE_CALL_METHOD_BIND_VALIDATED_RETURN", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2271,9 +2329,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 				GD_ERR_BREAK(_code_ptr[ip + 2] < 0 || _code_ptr[ip + 2] >= _methods_count);
 				MethodBind *method = _methods_ptr[_code_ptr[ip + 2]];
-
-				GodotProfileZoneScriptSystemCall(method, source, name, method->get_name(), line);
-
+				GodotProfileZoneScriptSystemCall(method, source,
+					"OPCODE_CALL_METHOD_BIND_VALIDATED_RETURN",
+					String(".").join({method->get_instance_class(),method->get_name()}), line);
 				GET_INSTRUCTION_ARG(base, argc);
 
 #ifdef DEBUG_ENABLED
@@ -2315,6 +2373,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_METHOD_BIND_VALIDATED_NO_RETURN) {
+				ZoneNamedN(tzc, "OPCODE_CALL_METHOD_BIND_VALIDATED_NO_RETURN", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2325,8 +2384,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 
 				GD_ERR_BREAK(_code_ptr[ip + 2] < 0 || _code_ptr[ip + 2] >= _methods_count);
 				MethodBind *method = _methods_ptr[_code_ptr[ip + 2]];
-
-				GodotProfileZoneScriptSystemCall(method, source, name, method->get_name(), line);
+				GodotProfileZoneScriptSystemCall(method, source,
+					"OPCODE_CALL_METHOD_BIND_VALIDATED_NO_RETURN",
+					String(".").join({method->get_instance_class(),method->get_name()}), line);
 
 				GET_INSTRUCTION_ARG(base, argc);
 #ifdef DEBUG_ENABLED
@@ -2367,6 +2427,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_BUILTIN_TYPE_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_CALL_BUILTIN_TYPE_VALIDATED", true);
 				LOAD_INSTRUCTION_ARGS
 
 				CHECK_SPACE(3 + instr_arg_count);
@@ -2406,6 +2467,9 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				GET_INSTRUCTION_ARG(dst, argc);
 
 				Callable::CallError err;
+				GodotProfileZoneScript(this, source,
+					"OPCODE_CALL_UTILITY",
+					function, line);
 				Variant::call_utility_function(function, dst, (const Variant **)argptrs, argc, err);
 
 #ifdef DEBUG_ENABLED
@@ -2425,6 +2489,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_UTILITY_VALIDATED) {
+				ZoneNamedN(tzc, "OPCODE_CALL_UTILITY_VALIDATED", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2447,6 +2512,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_GDSCRIPT_UTILITY) {
+				ZoneNamedN(tzc, "OPCODE_CALL_GDSCRIPT_UTILITY", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2482,6 +2548,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CALL_SELF_BASE) {
+				ZoneNamedN(tzc, "OPCODE_CALL_SELF_BASE", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(3 + instr_arg_count);
 
@@ -2523,6 +2590,10 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 				} else if (gds->native.ptr()) {
 					if (*methodname != GDScriptLanguage::get_singleton()->strings._init) {
 						MethodBind *mb = ClassDB::get_method(gds->native->get_name(), *methodname);
+						GodotProfileZoneScriptSystemCall(mb, source,
+							"OPCODE_CALL_SELF_BASE",
+							String(mb->get_instance_class()) + mb->get_name(), line);
+
 						if (!mb) {
 							err.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
 						} else {
@@ -2551,6 +2622,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_AWAIT) {
+				ZoneNamedN(tzc, "OPCODE_AWAIT", true);
 				CHECK_SPACE(2);
 
 				// Do the one-shot connect.
@@ -2647,6 +2719,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE; // Needed for synchronous calls (when result is immediately available).
 
 			OPCODE(OPCODE_AWAIT_RESUME) {
+				ZoneNamedN(tzc, "OPCODE_AWAIT_RESUME", true);
 				CHECK_SPACE(2);
 #ifdef DEBUG_ENABLED
 				if (!p_state) {
@@ -2661,6 +2734,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CREATE_LAMBDA) {
+				ZoneNamedN(tzc, "OPCODE_CREATE_LAMBDA", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(2 + instr_arg_count);
 
@@ -2690,6 +2764,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_CREATE_SELF_LAMBDA) {
+				ZoneNamedN(tzc, "OPCODE_CREATE_SELF_LAMBDA", true);
 				LOAD_INSTRUCTION_ARGS
 				CHECK_SPACE(2 + instr_arg_count);
 
@@ -2726,6 +2801,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_JUMP) {
+				ZoneNamedN(tzc, "OPCODE_JUMP", true);
 				CHECK_SPACE(2);
 				int to = _code_ptr[ip + 1];
 
@@ -2735,6 +2811,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_JUMP_IF) {
+				ZoneNamedN(tzc, "OPCODE_JUMP_IF", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(test, 0);
@@ -2752,6 +2829,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_JUMP_IF_NOT) {
+				ZoneNamedN(tzc, "OPCODE_JUMP_IF_NOT", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(test, 0);
@@ -2769,12 +2847,14 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_JUMP_TO_DEF_ARGUMENT) {
+				ZoneNamedN(tzc, "OPCODE_JUMP_TO_DEF_ARGUMENT", true);
 				CHECK_SPACE(2);
 				ip = _default_arg_ptr[defarg];
 			}
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_JUMP_IF_SHARED) {
+				ZoneNamedN(tzc, "OPCODE_JUMP_IF_SHARED", true);
 				CHECK_SPACE(3);
 
 				GET_VARIANT_PTR(val, 0);
@@ -2790,6 +2870,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_RETURN) {
+				ZoneNamedN(tzc, "OPCODE_RETURN", true);
 				CHECK_SPACE(2);
 				GET_VARIANT_PTR(r, 0);
 				retvalue = *r;
@@ -2800,6 +2881,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 
 			OPCODE(OPCODE_RETURN_TYPED_BUILTIN) {
+				ZoneNamedN(tzc, "OPCODE_RETURN_TYPED_BUILTIN", true);
 				CHECK_SPACE(3);
 				GET_VARIANT_PTR(r, 0);
 
@@ -2831,6 +2913,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 
 			OPCODE(OPCODE_RETURN_TYPED_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_RETURN_TYPED_ARRAY", true);
 				CHECK_SPACE(5);
 				GET_VARIANT_PTR(r, 0);
 
@@ -2867,6 +2950,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 
 			OPCODE(OPCODE_RETURN_TYPED_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_RETURN_TYPED_DICTIONARY", true);
 				CHECK_SPACE(8);
 				GET_VARIANT_PTR(r, 0);
 
@@ -2912,6 +2996,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 
 			OPCODE(OPCODE_RETURN_TYPED_NATIVE) {
+				ZoneNamedN(tzc, "OPCODE_RETURN_TYPED_NATIVE", true);
 				CHECK_SPACE(3);
 				GET_VARIANT_PTR(r, 0);
 
@@ -2952,6 +3037,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 
 			OPCODE(OPCODE_RETURN_TYPED_SCRIPT) {
+				ZoneNamedN(tzc, "OPCODE_RETURN_TYPED_SCRIPT", true);
 				CHECK_SPACE(3);
 				GET_VARIANT_PTR(r, 0);
 
@@ -3017,6 +3103,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			}
 
 			OPCODE(OPCODE_ITERATE_BEGIN) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN", true);
 				CHECK_SPACE(8); // Space for this and a regular iterate.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3051,6 +3138,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_INT) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_INT", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3078,6 +3166,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_FLOAT) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_FLOAT", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3105,6 +3194,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_VECTOR2) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_VECTOR2", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3132,6 +3222,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_VECTOR2I) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_VECTOR2I", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3159,6 +3250,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_VECTOR3) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_VECTOR3", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3191,6 +3283,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_VECTOR3I) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_VECTOR3I", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3223,6 +3316,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_STRING) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_STRING", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3250,6 +3344,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_DICTIONARY", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3275,6 +3370,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_ARRAY", true);
 				CHECK_SPACE(8); // Check space for iterate instruction too.
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3334,6 +3430,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			OPCODE_ITERATE_BEGIN_PACKED_ARRAY(VECTOR4, Vector4, get_vector4_array, VECTOR4, Vector4, get_vector4);
 
 			OPCODE(OPCODE_ITERATE_BEGIN_OBJECT) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_OBJECT", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3392,6 +3489,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_BEGIN_RANGE) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_BEGIN_RANGE", true);
 				CHECK_SPACE(6);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3425,6 +3523,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3457,6 +3556,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_INT) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_INT", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3481,6 +3581,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_FLOAT) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_FLOAT", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3505,6 +3606,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_VECTOR2) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_VECTOR2", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3529,6 +3631,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_VECTOR2I) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_VECTOR2I", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3553,6 +3656,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_VECTOR3) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_VECTOR3", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3577,6 +3681,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_VECTOR3I) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_VECTOR3I", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3601,6 +3706,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_STRING) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_STRING", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3624,6 +3730,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_DICTIONARY) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_DICTIONARY", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3647,6 +3754,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_ARRAY) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_ARRAY", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3701,6 +3809,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			OPCODE_ITERATE_PACKED_ARRAY(VECTOR4, Vector4, get_vector4_array, get_vector4);
 
 			OPCODE(OPCODE_ITERATE_OBJECT) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_OBJECT", true);
 				CHECK_SPACE(4);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3758,6 +3867,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_ITERATE_RANGE) {
+				ZoneNamedN(tzc, "OPCODE_ITERATE_RANGE", true);
 				CHECK_SPACE(5);
 
 				GET_VARIANT_PTR(counter, 0);
@@ -3785,6 +3895,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_STORE_GLOBAL) {
+				ZoneNamedN(tzc, "OPCODE_STORE_GLOBAL", true);
 				CHECK_SPACE(3);
 				int global_idx = _code_ptr[ip + 2];
 				GD_ERR_BREAK(global_idx < 0 || global_idx >= GDScriptLanguage::get_singleton()->get_global_array_size());
@@ -3797,6 +3908,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_STORE_NAMED_GLOBAL) {
+				ZoneNamedN(tzc, "OPCODE_STORE_NAMED_GLOBAL", true);
 				CHECK_SPACE(3);
 				int globalname_idx = _code_ptr[ip + 2];
 				GD_ERR_BREAK(globalname_idx < 0 || globalname_idx >= _global_names_count);
@@ -3859,6 +3971,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			OPCODE_TYPE_ADJUST(PACKED_VECTOR4_ARRAY, PackedVector4Array);
 
 			OPCODE(OPCODE_ASSERT) {
+				ZoneNamedN(tzc, "OPCODE_ASSERT", true);
 				CHECK_SPACE(3);
 
 #ifdef DEBUG_ENABLED
@@ -3888,6 +4001,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_BREAKPOINT) {
+				ZoneNamedN(tzc, "OPCODE_BREAKPOINT", true);
 #ifdef DEBUG_ENABLED
 				if (EngineDebugger::is_active()) {
 					GDScriptLanguage::get_singleton()->debug_break("Breakpoint Statement", true);
@@ -3898,6 +4012,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_LINE) {
+				ZoneNamedN(tzc, "OPCODE_LINE", true);
 				CHECK_SPACE(2);
 
 				line = _code_ptr[ip + 1];
@@ -3930,6 +4045,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
 			DISPATCH_OPCODE;
 
 			OPCODE(OPCODE_END) {
+				ZoneNamedN(tzc, "OPCODE_END", true);
 #ifdef DEBUG_ENABLED
 				exit_ok = true;
 #endif
