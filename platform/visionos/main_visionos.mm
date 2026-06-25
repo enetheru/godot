@@ -69,6 +69,5 @@ int apple_embedded_main(int argc, char **argv) {
 
 void apple_embedded_finish() {
 	Main::cleanup();
-	godot_cleanup_profiler();
 	delete os;
 }

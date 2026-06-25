@@ -186,6 +186,7 @@ void godot_cleanup_profiler() {
 	for (uint32_t i = 0; i < tracy::TracyInternTable::TABLE_LEN; i++) {
 		while (tracy::TracyInternTable::string_table[i]) {
 			tracy::StringInternData *d = tracy::TracyInternTable::string_table[i];
+			d->name = StringName();
 			tracy::TracyInternTable::string_table[i] = tracy::TracyInternTable::string_table[i]->next;
 			tracy::TracyInternTable::string_allocator.free(d);
 		}

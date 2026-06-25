@@ -5294,6 +5294,7 @@ void Main::cleanup(bool p_force) {
 		memdelete(engine);
 	}
 
+	godot_cleanup_profiler();
 	unregister_core_types();
 
 	OS::get_singleton()->benchmark_end_measure("Shutdown", "Main::Cleanup");

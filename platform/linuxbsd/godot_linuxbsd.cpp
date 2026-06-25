@@ -131,6 +131,5 @@ int main(int argc, char *argv[]) {
 	}
 	free(cwd);
 
-	godot_cleanup_profiler();
 	return os.get_exit_code();
 }

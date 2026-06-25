@@ -1186,7 +1186,6 @@ void OS_MacOS_NSApp::cleanup() {
 			Main::cleanup();
 		}
 	}
-	godot_cleanup_profiler();
 }
 
 OS_MacOS_NSApp::OS_MacOS_NSApp(const char *p_execpath, int p_argc, char **p_argv) :
